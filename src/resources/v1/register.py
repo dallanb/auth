@@ -2,7 +2,7 @@ from flask import request
 from flask_restful import marshal_with
 from marshmallow import ValidationError
 from ..schemas import RegisterFormSchema
-from ...models import User, UserSchema
+from ...models import UserModel, UserSchema
 from ...common import DataResponse, get_json, RoleEnum, StatusEnum
 
 from . import Base
@@ -24,10 +24,10 @@ class Register(Base):
             self.logger.error(err.messages)
             self.throw_error(self.code.BAD_REQUEST)
 
-        role = User.find_role(RoleEnum.member)
-        status = User.find_status(StatusEnum.active)
+        role = UserModel.find_role(RoleEnum.member)
+        status = UserModel.find_status(StatusEnum.active)
 
-        user = User(username=data['username'], email=data['email'], password=data['password'], role=role,
+        user = UserModel(username=data['username'], email=data['email'], password=data['password'], role=role,
                     status=status)
 
         self.db.session.add(user)

@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import marshal_with
 from ...common import DataResponse
-from ...models import User, UserSchema
+from ...models import UserModel, UserSchema
 
 from . import Base
 
@@ -19,13 +19,13 @@ class Status(Base):
 
         auth_token = auth.split(" ")[1]
 
-        user_id = User.decode_auth_token(auth_token)
+        user_id = UserModel.decode_auth_token(auth_token)
 
         if isinstance(user_id, str):
             self.logger.info(user_id)
             self.throw_error(self.code.BAD_REQUEST)
 
-        user = User.query.filter(User.id == user_id).first()
+        user = UserModel.query.filter(UserModel.id == user_id).first()
 
         user_result = UserSchema().dump(user)
 
