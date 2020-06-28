@@ -42,7 +42,7 @@ routes.add_resource(Ping, '/ping', methods=['GET'])
 routes.add_resource(Register, '/register', methods=['POST'])
 routes.add_resource(Status, '/status', methods=['GET'])
 
-if app.config['ENV'] == 'development':
+if app.config['ENV'] != 'development':
     # error handling
     @app.errorhandler(Exception)
     @marshal_with(ErrorResponse.marshallable())
