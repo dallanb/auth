@@ -1,0 +1,7 @@
+Generic single-database configuration.
+
+## Migration Workflow
+
+1. Make a change to your models
+2. `> flask db migrate`
+3. `> flask db upgrade`
