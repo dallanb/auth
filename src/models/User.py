@@ -1,18 +1,14 @@
 import datetime, jwt
 from flask import g
-from sqlalchemy.event import listens_for
 from sqlalchemy_utils import EmailType, PasswordType, UUIDType
-from .. import db, ma
-from .Base import Base
+from .. import db
+from .mixins import BaseMixin
 from .BlacklistToken import BlacklistToken
 from .Role import Role
 from .Status import Status
-from .utils import generate_uuid
 
 
-class User(Base):
-    __tablename__ = 'user'
-    uuid = db.Column(UUIDType(binary=False), unique=True, nullable=False)
+class User(db.Model, BaseMixin):
     email = db.Column(EmailType, unique=True, nullable=False)
     username = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(PasswordType(
@@ -101,23 +97,4 @@ class User(Base):
             return 'Invalid token. Please log in again.'
 
 
-@listens_for(User, 'before_insert')
-def before_insert(mapper, connect, self):
-    self.uuid = generate_uuid()
-
-
-@listens_for(User, 'before_update')
-def before_update(mapper, connect, self):
-    return
-
-
-class UserSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = User
-        load_instance = True
-
-    uuid = ma.auto_field()
-    email = ma.auto_field()
-    username = ma.auto_field()
-    role_uuid = ma.auto_field()
-    status_uuid = ma.auto_field()
+User.register()

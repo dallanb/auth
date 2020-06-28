@@ -1,14 +1,11 @@
 from .. import db
-from .Base import Base
+from .mixins import BaseMixin
 
 
-class BlacklistToken(Base):
+class BlacklistToken(db.Model, BaseMixin):
     """
     Token Model for storing JWT tokens
     """
-    __tablename__ = 'blacklist_tokens'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     token = db.Column(db.String(500), unique=True, nullable=False)
 
     def __init__(self, *args, **kwargs):
@@ -25,3 +22,6 @@ class BlacklistToken(Base):
             return True
         else:
             return False
+
+
+BlacklistToken.register()

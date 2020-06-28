@@ -10,4 +10,6 @@ then
     echo "PostgreSQL started"
 fi
 
-python manage.py run -h 0.0.0.0
+. ~/.bashrc
+
+manage run -h 0.0.0.0

@@ -9,6 +9,9 @@ WORKDIR /home/app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+# Add aliases
+RUN echo "alias manage='python manage.py'" >> ~/.bashrc
+
 ## install dependencies
 RUN apt-get update && \
     apt-get upgrade -y && \
