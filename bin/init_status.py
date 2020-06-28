@@ -4,7 +4,7 @@ import logging
 
 def init_status():
     status_enums = g.src.StatusEnum
-    Status = g.src.Status
+    Status = g.src.StatusModel
 
     for status_enum in status_enums:
         status = Status(name=status_enum)

@@ -4,7 +4,7 @@ import logging
 
 def init_role():
     role_enums = g.src.RoleEnum
-    Role = g.src.Role
+    Role = g.src.RoleModel
 
     for role_enum in role_enums:
         role = Role(name=role_enum)

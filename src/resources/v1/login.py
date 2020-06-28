@@ -2,7 +2,7 @@ from flask import request
 from flask_restful import marshal_with
 from marshmallow import ValidationError
 from ..schemas import LoginFormSchema
-from ...models import User, UserSchema
+from ...models import UserModel, UserSchema
 from ...common import DataResponse, get_json
 from . import Base
 
@@ -23,7 +23,7 @@ class Login(Base):
             self.logger.error(err.messages)
             self.throw_error(self.code.BAD_REQUEST)
 
-        user = User.query.filter(User.email == data['email']).first()
+        user = UserModel.query.filter(UserModel.email == data['email']).first()
 
         if not user:
             self.logger.error('User with provided credentials not found')
