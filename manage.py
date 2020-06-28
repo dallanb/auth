@@ -7,7 +7,7 @@ import src
 cli = FlaskGroup(app)
 
 
-@cli.command("create_db")
+@cli.command("reset_db")
 def create_db():
     db.drop_all()
     db.create_all()
@@ -19,7 +19,7 @@ def drop_db():
     db.drop_all()
 
 
-@cli.command("initialize_roles")
+@cli.command("init_role")
 def initialize_roles():
     with app.app_context():
         g.src = src
@@ -27,7 +27,7 @@ def initialize_roles():
         return
 
 
-@cli.command("initialize_statuses")
+@cli.command("init_status")
 def initialize_statuses():
     with app.app_context():
         g.src = src
