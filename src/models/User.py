@@ -2,13 +2,14 @@ import datetime, jwt
 from flask import g
 from sqlalchemy_utils import EmailType, PasswordType, UUIDType
 from .. import db
-from .mixins import BaseMixin
+from .mixins import BaseMixin, KongMixin
 from .BlacklistToken import BlacklistToken
 from .Role import Role
 from .Status import Status
+from .utils import generate_uuid
 
 
-class User(db.Model, BaseMixin):
+class User(db.Model, BaseMixin, KongMixin):
     email = db.Column(EmailType, unique=True, nullable=False)
     username = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(PasswordType(
@@ -57,8 +58,8 @@ class User(db.Model, BaseMixin):
 
         return status
 
-    @staticmethod
-    def encode_auth_token(user_id):
+    @classmethod
+    def encode_auth_token(cls, uuid, username):
         """
         Generates the Auth Token
         :return: string
@@ -67,8 +68,13 @@ class User(db.Model, BaseMixin):
             payload = {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=300),
                 'iat': datetime.datetime.utcnow(),
-                'sub': user_id
+                'name': username,
+                'sub': str(uuid),
+                'iss': str(generate_uuid())
             }
+
+            cls.create_jwt_credential(username=username, key=payload['iss'])
+
             return jwt.encode(
                 payload,
                 g.config.get('SECRET_KEY'),
@@ -98,3 +104,4 @@ class User(db.Model, BaseMixin):
 
 
 User.register()
+User.register_kong()

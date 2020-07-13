@@ -8,3 +8,7 @@ def time_now():
 
 def generate_uuid():
     return uuid.uuid4()
+
+
+def get_jwt_part(token, index):
+    return token.decode("utf-8").split(".")[index]

@@ -1,3 +1,4 @@
+import uuid
 from flask import request
 from flask_restful import marshal_with
 from ...common import DataResponse
@@ -19,13 +20,16 @@ class Status(Base):
 
         auth_token = auth.split(" ")[1]
 
-        user_id = UserModel.decode_auth_token(auth_token)
+        user_uuid = UserModel.decode_auth_token(auth_token)
 
-        if isinstance(user_id, str):
-            self.logger.info(user_id)
+        try:
+            user_uuid = uuid.UUID(user_uuid)
+        except ValueError:
+            self.logger.info(user_uuid)
             self.throw_error(self.code.BAD_REQUEST)
 
-        user = UserModel.query.filter(UserModel.id == user_id).first()
+
+        user = UserModel.query.filter(UserModel.uuid == user_uuid).first()
 
         user_result = UserSchema().dump(user)
 

@@ -28,17 +28,17 @@ class Register(Base):
         status = UserModel.find_status(StatusEnum.active)
 
         user = UserModel(username=data['username'], email=data['email'], password=data['password'], role=role,
-                    status=status)
+                         status=status)
 
         self.db.session.add(user)
         self.db.session.commit()
 
-        auth_token = user.encode_auth_token(user.id)
+        user_result = UserSchema().dump(user)
+
+        auth_token = user.encode_auth_token(uuid=user_result['uuid'], username=user_result['username'])
 
         if not auth_token:
             self.logger.error('Issues authorizing auth token')
             self.throw_error(self.code.INTERNAL_SERVER_ERROR)
-
-        user_result = UserSchema().dump(user)
 
         return DataResponse(data={'user': user_result, 'auth_token': auth_token.decode()})

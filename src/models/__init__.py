@@ -8,4 +8,4 @@ from .User import User as UserModel
 from .schemas import RoleSchema, StatusSchema, UserSchema
 
 # utils
-from .utils import generate_uuid, time_now
+from .utils import generate_uuid, time_now, get_jwt_part
