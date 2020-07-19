@@ -1,15 +1,20 @@
 import enum
 
 
-class RoleEnum(enum.Enum):
+class UserRoleEnum(enum.Enum):
     member = 1
     admin = 2
     root = 3
 
 
-class StatusEnum(enum.Enum):
+class UserStatusEnum(enum.Enum):
     pending = 1
     active = 2
     inactive = 3
     blocked = 4
     deleted = 5
+
+
+class UserTokenStatusEnum(enum.Enum):
+    active = 1
+    inactive = 2

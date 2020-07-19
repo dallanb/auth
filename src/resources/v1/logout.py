@@ -2,7 +2,7 @@ import uuid
 from flask import request
 from flask_restful import marshal_with
 from ...common import DataResponse
-from ...models import UserModel, BlacklistTokenModel
+from ...models import UserTokenModel
 
 from . import Base
 
@@ -20,18 +20,6 @@ class Logout(Base):
 
         auth_token = auth.split(" ")[1]
 
-        user_uuid = UserModel.decode_auth_token(auth_token)
-
-        try:
-            user_uuid = uuid.UUID(user_uuid)
-        except ValueError:
-            self.logger.info(user_uuid)
-            self.throw_error(self.code.BAD_REQUEST)
-
-        # TODO: Think about how to delete token from Kong
-
-        blacklist_token = BlacklistTokenModel(token=auth_token)
-        self.db.session.add(blacklist_token)
-        self.db.session.commit()
+        UserTokenModel.destroy_auth_token(auth_token=auth_token)
 
         return DataResponse(data=False)

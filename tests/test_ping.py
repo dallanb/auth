@@ -1,5 +1,4 @@
 from huncho.services.auth.src import app
-import logging
 
 
 def test_ping():

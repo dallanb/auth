@@ -1,4 +1,5 @@
 from flask import Flask, g
+from flask_caching import Cache
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restful import Api, marshal_with
@@ -9,6 +10,10 @@ import logging.config
 
 app = Flask(__name__)
 app.config.from_object("src.config.Config")
+# cache
+cache = Cache(app, config=app.config['REDIS_CONFIG'])
+# cors
+CORS(app)
 # db
 db = SQLAlchemy(app)
 # migrate
@@ -17,8 +22,7 @@ migrate = Migrate(app, db)
 ma = Marshmallow()
 # routes
 routes = Api(app)
-# cors
-CORS(app)
+
 # logging
 logging.config.dictConfig(app.config['LOGGING_CONFIG'])
 
@@ -32,8 +36,8 @@ from .resources.v1 import (Login, Logout, Ping, Register, Status)
 from .common import (
     ManualException,
     ErrorResponse,
-    RoleEnum,
-    StatusEnum
+    UserRoleEnum,
+    UserStatusEnum
 )
 
 routes.add_resource(Login, '/login', methods=['POST'])
@@ -42,7 +46,7 @@ routes.add_resource(Ping, '/ping', methods=['GET'])
 routes.add_resource(Register, '/register', methods=['POST'])
 routes.add_resource(Status, '/status', methods=['GET'])
 
-if app.config['ENV'] != 'development':
+if app.config['ENV'] == 'development':
     # error handling
     @app.errorhandler(Exception)
     @marshal_with(ErrorResponse.marshallable())
@@ -60,5 +64,6 @@ if app.config['ENV'] != 'development':
 @app.before_request
 def handle_request():
     g.logger = logging
+    g.cache = cache
     g.db = db
     g.config = app.config

@@ -18,7 +18,8 @@ class KongProxy(Base):
             'username': username,
             'custom_id': uuid
         }
-        self.post(url=url, json=json)
+        res = self.post(url=url, json=json)
+        return res.json()
 
     # create jwt credential with Kong
     def create_jwt_credential(self, username, key, algorithm="HS256"):
@@ -29,9 +30,11 @@ class KongProxy(Base):
             "algorithm": algorithm,
             "secret": self.secret
         }
-        self.post(url=url, data=data, headers=headers)
+        res = self.post(url=url, data=data, headers=headers)
+        return res.json()
 
     # delete jwt credential with Kong
     def delete_jwt_credential(self, username, jwt_id):
         url = f'{self.base_url}/consumers/{username}/jwt/{jwt_id}'
-        self.delete(url=url)
+        res = self.delete(url=url)
+        return res

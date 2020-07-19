@@ -11,7 +11,7 @@ class Base:
         url = kwargs.get('url', None)
         payload = kwargs.get('payload', None)
         headers = kwargs.get('headers', None)
-        requests.get(url, payload, headers)
+        return requests.get(url, payload, headers)
 
     @staticmethod
     def post(**kwargs):
@@ -20,10 +20,10 @@ class Base:
         json = kwargs.get('json', None)
         files = kwargs.get('files', None)
         headers = kwargs.get('headers', None)
-        requests.post(url, data=data, json=json, files=files, headers=headers)
+        return requests.post(url, data=data, json=json, files=files, headers=headers)
 
     @staticmethod
     def delete(**kwargs):
         url = kwargs.get('url', None)
         headers = kwargs.get('headers', None)
-        requests.delete(url, headers=headers)
+        return requests.delete(url, headers=headers)

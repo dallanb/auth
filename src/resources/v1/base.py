@@ -7,6 +7,7 @@ from http import HTTPStatus
 class Base(Resource):
     def __init__(self):
         self.logger = g.logger.getLogger(__name__)
+        self.cache = g.cache
         self.db = g.db
         self.code = HTTPStatus
 

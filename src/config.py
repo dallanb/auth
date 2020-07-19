@@ -11,6 +11,11 @@ class Config(object):
     SECRET_KEY = os.getenv("SECRET_KEY")
     KONG_HOST = os.getenv("KONG_HOST")
     KONG_PORT = os.getenv("KONG_PORT")
+    REDIS_CONFIG = {
+        'CACHE_TYPE': 'redis',
+        'CACHE_REDIS_HOST': os.getenv("CACHE_HOST"),
+        'CACHE_REDIS_PORT': os.getenv("CACHE_PORT")
+    }
     LOGGING_CONFIG = {
         'version': 1,
         'loggers': {
