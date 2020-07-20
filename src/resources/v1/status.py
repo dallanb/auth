@@ -30,9 +30,13 @@ class Status(Base):
         token = UserTokenModel.decode_token(token=auth_token)
         try:
             uuid.UUID(token['sub'])
-        except ValueError:
+        except ValueError:  # Unknown Error
             self.logger.info(token)
             self.throw_error(self.code.BAD_REQUEST)
+        except TypeError:
+            UserTokenModel.destroy_auth_token(auth_token=auth_token)  # destroy the token
+            self.logger.info(token)
+            self.throw_error(self.code.UNAUTHORIZED)
 
         user = UserModel.query.filter(UserModel.uuid == token['sub']).first()
 
