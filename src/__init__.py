@@ -21,16 +21,15 @@ migrate = Migrate(app, db)
 # ma
 ma = Marshmallow()
 # routes
-routes = Api(app)
+api = Api(app)
 
 # logging
 logging.config.dictConfig(app.config['LOGGING_CONFIG'])
 
 # import models
 from .models import *
-
-# import resources
-from .resources.v1 import (Login, Logout, Ping, Register, Status)
+# import routes
+from .routes import *
 
 # import common
 from .common import (
@@ -39,12 +38,6 @@ from .common import (
     UserRoleEnum,
     UserStatusEnum
 )
-
-routes.add_resource(Login, '/login', methods=['POST'])
-routes.add_resource(Logout, '/logout', methods=['POST'])
-routes.add_resource(Ping, '/ping', methods=['GET'])
-routes.add_resource(Register, '/register', methods=['POST'])
-routes.add_resource(Status, '/status', methods=['GET'])
 
 if app.config['ENV'] != 'development':
     # error handling

@@ -1,13 +1,12 @@
 from flask import request
 from flask_restful import marshal_with
-from ..schemas import RegisterFormSchema
 from ...models import UserModel, UserSchema, UserTokenModel, UserTokenSchema
-from ...common import DataResponse, get_json, UserRoleEnum, UserStatusEnum
-
+from ...common import DataResponse, get_json
+from .schemas import LoginFormSchema
 from . import Base
 
 
-class Register(Base):
+class Login(Base):
     def __init__(self):
         Base.__init__(self)
 
@@ -15,36 +14,27 @@ class Register(Base):
     def post(self):
         # get request payload
         try:
-            data = RegisterFormSchema().load(get_json(request.form['data']))
+            data = LoginFormSchema().load(get_json(request.form['data']))
         except Exception as e:
             self.logger.error(e)
             self.throw_error(self.code.BAD_REQUEST)
 
-        # query auth_db for member role row
+        # query auth_db for user in request payload
         try:
-            role = UserModel.find_role(UserRoleEnum.member)
+            user = UserModel.query.filter(UserModel.email == data['email']).first()
         except Exception as e:
             self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
+            self.throw_error(self.code.BAD_REQUEST)
 
-        # query auth_db for active status row
+        # check whether the password passed in is valid
         try:
-            status = UserModel.find_status(UserStatusEnum.active)
+            if not user.check_password(data['password']):
+                raise Exception('User with provided credentials not found')
         except Exception as e:
             self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
+            self.throw_error(self.code.BAD_REQUEST)
 
-        # create user in auth_db
-        try:
-            user = UserModel(username=data['username'], email=data['email'], password=data['password'], role=role,
-                             status=status)
-            self.db.session.add(user)
-            self.db.session.commit()
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
-
-        # dump user model instance
+        # dump user result instance
         try:
             user_result = UserSchema().dump(user)
         except Exception as e:

@@ -4,3 +4,5 @@ from .logout import Logout
 from .ping import Ping
 from .register import Register
 from .status import Status
+
+from .schemas import *
