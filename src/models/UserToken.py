@@ -33,16 +33,10 @@ class UserToken(db.Model, BaseMixin, KongMixin):
         """
         try:
             key = str(generate_uuid())
-
             jwt_credential = cls.create_jwt_credential(username=username, key=key)
-
-            jwt_token = cls.encode_token(
-                name=username,
-                sub=str(uuid),
-                iss=key
-            )
-
-            user_token = UserToken(token=jwt_token.decode(), kong_jwt_id=jwt_credential['id'],
+            jwt_token = cls.encode_token(name=username, sub=str(uuid), iss=key)
+            user_token = UserToken(token=jwt_token.decode(),
+                                   kong_jwt_id=jwt_credential['id'],
                                    status=UserTokenStatusEnum.active,
                                    user_uuid=uuid)
             db.session.add(user_token)
@@ -53,27 +47,14 @@ class UserToken(db.Model, BaseMixin, KongMixin):
 
     @classmethod
     def destroy_auth_token(cls, auth_token):
-        q = db.session.query(
-            User, UserToken,
-        ).filter(
-            User.uuid == UserToken.user_uuid,
-        ).filter(
-            UserToken.token == str(auth_token),
-        ).first()
-
-        if not q:
-            return False
-
-        user = q[0]
-        user_token = q[1]
+        user, user_token = cls.find_user_by_token(auth_token)
+        if not user:
+            raise Exception('Could not find user')
+        if not user_token:
+            raise Exception('Could not find user_token')
 
         cls.destroy_jwt_credential(username=user.username, jwt_id=user_token.kong_jwt_id)
-
-        user_token.status = UserTokenStatusEnum.inactive
-        user_token.kong_jwt_id = None
-
-        db.session.commit()
-        return True
+        cls.deactivate_token(user_token)
 
     @staticmethod
     def encode_token(**kwargs):
@@ -100,19 +81,34 @@ class UserToken(db.Model, BaseMixin, KongMixin):
         try:
             return jwt.decode(token, g.config.get('SECRET_KEY'))
         except jwt.ExpiredSignatureError:
-            return 'Signature expired. Please log in again.'
+            raise ValueError('Signature expired. Please log in again.', 'destroy_token')
         except jwt.InvalidTokenError:
-            return 'Invalid token. Please log in again.'
+            raise ValueError('Invalid token. Please log in again.')
+        except Exception as e:
+            raise ValueError('Unknown error')
 
     @staticmethod
     def is_active(token):
         # check whether auth token is active
         res = UserToken.query.filter(UserToken.token == str(token),
                                      UserToken.status == UserTokenStatusEnum.active).first()
-        if res:
-            return True
-        else:
-            return False
+        return True if res else False
+
+    @staticmethod
+    def find_user_by_token(token):
+        return db.session.query(
+            User, UserToken,
+        ).filter(
+            User.uuid == UserToken.user_uuid,
+        ).filter(
+            UserToken.token == str(token),
+        ).first()
+
+    @staticmethod
+    def deactivate_token(token):
+        token.status = UserTokenStatusEnum.inactive
+        token.kong_jwt_id = None
+        db.session.commit()
 
 
 UserToken.register()

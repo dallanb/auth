@@ -13,13 +13,19 @@ class Logout(Base):
 
     @marshal_with(DataResponse.marshallable())
     def post(self):
-        auth = request.headers.get('Authorization')
-        if not auth:
-            self.logger.error('Missing authorization')
+        try:
+            auth = request.headers.get('Authorization')
+            if not auth:
+                raise Exception('Missing authorization')
+            auth_token = auth.split(" ")[1]
+        except Exception as e:
+            self.logger.error(e)
             self.throw_error(self.code.BAD_REQUEST)
 
-        auth_token = auth.split(" ")[1]
-
-        UserTokenModel.destroy_auth_token(auth_token=auth_token)
+        try:
+            UserTokenModel.destroy_auth_token(auth_token=auth_token)
+        except Exception as e:
+            self.logger.error(e)
+            self.throw_error(self.code.BAD_REQUEST)
 
         return DataResponse(data=False)
