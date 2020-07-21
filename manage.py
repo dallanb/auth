@@ -7,6 +7,13 @@ import src
 cli = FlaskGroup(app)
 
 
+@cli.command("full_init")
+def full_init():
+    create_db()
+    initialize_roles()
+    initialize_statuses()
+
+
 @cli.command("reset_db")
 def create_db():
     db.drop_all()
