@@ -3,7 +3,7 @@ from flask import g
 from . import Base
 
 
-class KongProxy(Base):
+class Kong(Base):
     def __init__(self):
         Base.__init__(self)
         self.host = g.config['KONG_HOST']
