@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import marshal_with
 from ...models import UserModel, UserSchema, UserTokenModel, UserTokenSchema
-from ...common import DataResponse, get_json, UserRoleEnum, UserStatusEnum
+from ...common import DataResponse, get_json, Mail, UserRoleEnum, UserStatusEnum
 from .schemas import RegisterFormSchema
 from . import Base
 
@@ -9,6 +9,7 @@ from . import Base
 class Register(Base):
     def __init__(self):
         Base.__init__(self)
+        self.mail = Mail()
 
     @marshal_with(DataResponse.marshallable())
     def post(self):
@@ -62,6 +63,18 @@ class Register(Base):
         # dump user token model instance
         try:
             user_token_result = UserTokenSchema().dump(user_token)
+        except Exception as e:
+            self.logger.error(e)
+            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
+
+        # send register email
+        try:
+            html = self.mail.generate_body('register', user=user_result)
+            self.mail.send(
+                to=user_result['email'],
+                subject='Tech Tapir Registration',
+                html=html
+            )
         except Exception as e:
             self.logger.error(e)
             self.throw_error(self.code.INTERNAL_SERVER_ERROR)

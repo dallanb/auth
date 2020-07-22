@@ -11,6 +11,8 @@ class Config(object):
     SECRET_KEY = os.getenv("SECRET_KEY")
     KONG_HOST = os.getenv("KONG_HOST")
     KONG_PORT = os.getenv("KONG_PORT")
+    MAILER_HOST = os.getenv("MAILER_HOST")
+    MAILER_PORT = os.getenv("MAILER_PORT")
     REDIS_CONFIG = {
         'CACHE_TYPE': 'redis',
         'CACHE_REDIS_HOST': os.getenv("CACHE_HOST"),
