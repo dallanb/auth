@@ -36,10 +36,10 @@ class Config(object):
             'debug_rotating_file_handler': {
                 'level': 'DEBUG',
                 'formatter': 'debug',
-                'class': 'logging.handlers.RotatingFileHandler',
+                'class': 'logging.handlers.TimedRotatingFileHandler',
                 'filename': 'logs/tapir.log',
-                'mode': 'a',
-                'maxBytes': 1048576,
+                'when': 'D',
+                'interval': 1,
                 'backupCount': 10
             },
             'error_file_handler': {
