@@ -1,10 +1,10 @@
 from ..common import UserRoleEnum
 from .. import db
-from .mixins import BaseMixin
+from .mixins import EnumMixin
 
 
-class UserRole(db.Model, BaseMixin):
-    name = db.Column(db.Enum(UserRoleEnum), nullable=False)
+class UserRole(db.Model, EnumMixin):
+    name = db.Column(db.Enum(UserRoleEnum), primary_key=True, unique=True, nullable=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

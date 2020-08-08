@@ -15,6 +15,6 @@ class UserStatusEnum(enum.Enum):
     deleted = 5
 
 
-class UserTokenStatusEnum(enum.Enum):
+class TokenStatusEnum(enum.Enum):
     active = 1
     inactive = 2

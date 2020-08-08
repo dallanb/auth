@@ -40,11 +40,13 @@ class DataResponse(Response):
 class ErrorResponse(Response):
     def __init__(self, **kwargs):
         self.msg = kwargs.get('msg', HTTPStatus.INTERNAL_SERVER_ERROR.phrase)
-        self.data = kwargs.get('data', False)
+        self.err = kwargs.get('err', None)
+        self.data = kwargs.get('data', None)
 
     @staticmethod
     def marshallable():
         return {
             'msg': fields.String,
+            'err': fields.Raw,
             'data': fields.Raw,
         }

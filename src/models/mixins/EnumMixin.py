@@ -1,23 +1,20 @@
-from sqlalchemy_utils import UUIDType
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.event import listen
 from ... import db
-from ...common.utils import camel_to_snake, generate_uuid, time_now
+from ...common.utils import camel_to_snake, time_now
 
 
-class BaseMixin(object):
+class EnumMixin(object):
 
     @declared_attr
     def __tablename__(cls):
         return camel_to_snake(cls.__name__)
 
-    uuid = db.Column(UUIDType(binary=False), primary_key=True, unique=True, nullable=False)
     ctime = db.Column(db.BigInteger, default=time_now)
-    mtime = db.Column(db.BigInteger, default=time_now)
+    mtime = db.Column(db.BigInteger, onupdate=time_now)
 
     @staticmethod
     def init(mapper, connection, target):
-        target['uuid'] = generate_uuid()
         return
 
     @staticmethod

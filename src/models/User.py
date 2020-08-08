@@ -1,8 +1,7 @@
 from sqlalchemy_utils import EmailType, PasswordType, UUIDType
-from .. import db
 from .mixins import BaseMixin, KongMixin
-from .UserRole import UserRole
-from .UserStatus import UserStatus
+from .. import db
+from ..common import UserStatusEnum, UserRoleEnum
 
 
 class User(db.Model, BaseMixin, KongMixin):
@@ -18,41 +17,15 @@ class User(db.Model, BaseMixin, KongMixin):
     ))
 
     # FK
-    role_uuid = db.Column(UUIDType(binary=False), db.ForeignKey('userrole.uuid'), nullable=True)
-    status_uuid = db.Column(UUIDType(binary=False), db.ForeignKey('userstatus.uuid'), nullable=True)
+    role = db.Column(db.Enum(UserRoleEnum), db.ForeignKey('user_role.name'), nullable=True)
+    status = db.Column(db.Enum(UserStatusEnum), db.ForeignKey('user_status.name'), nullable=True)
 
     # Relationship
-    role = db.relationship("UserRole")
-    status = db.relationship("UserStatus")
+    user_role = db.relationship("UserRole")
+    user_status = db.relationship("UserStatus")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    def check_password(self, password):
-        return self.password == password
-
-    @staticmethod
-    def find_role(role_enum=None):
-        if role_enum is None:
-            return None
-
-        role = UserRole.query.filter(UserRole.name == role_enum).first()
-        if role_enum is None:
-            return None
-
-        return role
-
-    @staticmethod
-    def find_status(status_enum=None):
-        if status_enum is None:
-            return None
-
-        status = UserStatus.query.filter(UserStatus.name == status_enum).first()
-
-        if status_enum is None:
-            return None
-
-        return status
 
 
 User.register()

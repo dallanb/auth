@@ -1,82 +1,29 @@
 from flask import request
 from flask_restful import marshal_with
-from ...models import UserModel, UserSchema, UserTokenModel, UserTokenSchema
-from ...common import DataResponse, get_json, Mail, UserRoleEnum, UserStatusEnum
-from .schemas import RegisterFormSchema
+from .schemas import register_form_schema, dump_user_schema, dump_token_schema
+from ...models import User, Token
+from ...common.response import DataResponse
+from ... import services
+
 from . import Base
 
 
 class Register(Base):
     def __init__(self):
         Base.__init__(self)
-        self.mail = Mail()
 
     @marshal_with(DataResponse.marshallable())
     def post(self):
-        # get request payload
-        try:
-            data = RegisterFormSchema().load(get_json(request.form['data']))
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.BAD_REQUEST)
-
-        # query auth_db for member role row
-        try:
-            role = UserModel.find_role(UserRoleEnum.member)
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
-
-        # query auth_db for active status row
-        try:
-            status = UserModel.find_status(UserStatusEnum.active)
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
-
-        # create user in auth_db
-        try:
-            user = UserModel(username=data['username'], email=data['email'], password=data['password'], role=role,
-                             status=status)
-            self.db.session.add(user)
-            self.db.session.commit()
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
-
-        # dump user model instance
-        try:
-            user_result = UserSchema().dump(user)
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
-
-        # create an auth in auth_db and also kong jwt db
-        try:
-            user_token = UserTokenModel.create_auth_token(uuid=user_result['uuid'], username=user_result['username'])
-            if not user_token:
-                raise Exception('Issues authorizing auth token')
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
-
-        # dump user token model instance
-        try:
-            user_token_result = UserTokenSchema().dump(user_token)
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
-
-        # send register email
-        try:
-            html = self.mail.generate_body('register', user=user_result)
-            self.mail.send(
-                to=user_result['email'],
-                subject='Tech Tapir Registration',
-                html=html
-            )
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
-
-        return DataResponse(data={'user': user_result, 'auth_token': user_token_result['token']})
+        data = self.clean(schema=register_form_schema, instance=request.get_json())
+        user = self.init(model=User, username=data['username'], email=data['email'], password=data['password'],
+                         role='member',
+                         status='active')
+        user = self.save(instance=user)
+        user_result = self.dump(schema=dump_user_schema, instance=user)
+        _ = services.send_register_mail(user=user_result)
+        token = self.init(model=Token)
+        attr = services.generate_token_attributes(uuid=user_result['uuid'], username=user_result['username'])
+        token = self.assign_attr(instance=token, attr=attr)
+        token = self.save(instance=token)
+        token_result = self.dump(schema=dump_token_schema, instance=token)
+        return DataResponse(data={'user': user_result, 'token': token_result['token']})

@@ -8,6 +8,7 @@ WORKDIR /home/app
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV PYTHONHASHSEED 0
 
 # Add aliases
 RUN echo "alias manage='python manage.py'" >> ~/.bashrc

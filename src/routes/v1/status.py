@@ -1,9 +1,10 @@
-import uuid
-from flask import request
+from flask import g
 from flask_restful import marshal_with
-from ...common import DataResponse
-from ...models import UserModel, UserSchema, UserTokenModel
-from ... import cache
+from .schemas import dump_user_schema
+from ...common.response import DataResponse
+from ...common.auth import check_auth
+from ...models import User, Token
+from ... import services
 
 from . import Base
 
@@ -13,45 +14,25 @@ class Status(Base):
         Base.__init__(self)
 
     @marshal_with(DataResponse.marshallable())
-    @cache.cached(timeout=60)
+    @check_auth
     def get(self):
+        tokens = self.find(model=Token, token=g.token, status='active', not_found=self.code.NOT_FOUND)
+        users = self.find(model=User, uuid=tokens.items[0].user_uuid, not_found=self.code.INTERNAL_SERVER_ERROR)
         try:
-            auth = request.headers.get('Authorization')
-            if not auth:
-                raise Exception('Missing authorization')
-            auth_token = auth.split(" ")[1]
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.BAD_REQUEST)
-
-        try:
-            is_active = UserTokenModel.is_active(token=auth_token)
-            if not is_active:
-                raise Exception('Invalid token. Please log in again.')
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.UNAUTHORIZED)
-
-        try:
-            token = UserTokenModel.decode_token(token=auth_token)
+            _ = services.decode_token(token=tokens.items[0].token)
         except ValueError as e:
             if 'destroy_token' in e.args:
-                UserTokenModel.destroy_auth_token(auth_token=auth_token)  # destroy the token
-            self.logger.error(e)
-            self.throw_error(self.code.UNAUTHORIZED)
-
-        # query auth_db for user in request payload
-        try:
-            user = UserModel.query.filter(UserModel.uuid == token['sub']).first()
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
-
-        # dump user model instance
-        try:
-            user_result = UserSchema().dump(user)
-        except Exception as e:
-            self.logger.error(e)
-            self.throw_error(self.code.INTERNAL_SERVER_ERROR)
-
-        return DataResponse(data={'user': user_result})
+                attr = services.generate_deactivate_token_attributes(username=users.items[0].username,
+                                                                     kong_jwt_id=tokens.items[
+                                                                         0].kong_jwt_id)
+                token = self.assign_attr(instance=tokens.items[0], attr=attr)
+                _ = self.save(instance=token)
+            self.throw_error(http_code=self.code.UNAUTHORIZED)
+        return DataResponse(
+            data={
+                'user': self.dump(
+                    schema=dump_user_schema,
+                    instance=users.items[0]
+                )
+            }
+        )
