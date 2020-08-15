@@ -1,2 +1,3 @@
-from .token import *
-from .user import *
+from .base import Base
+from .token import Token
+from .user import User

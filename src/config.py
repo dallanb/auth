@@ -13,6 +13,9 @@ class Config(object):
     KONG_PORT = os.getenv("KONG_PORT")
     MAILER_HOST = os.getenv("MAILER_HOST")
     MAILER_PORT = os.getenv("MAILER_PORT")
+    KAFKA_HOST = os.getenv("KAFKA_HOST")
+    KAFKA_PORT = os.getenv("KAFKA_PORT")
+    KAFKA_TOPICS = os.getenv("KAFKA_TOPICS").split(",")
     REDIS_CONFIG = {
         'CACHE_TYPE': 'redis',
         'CACHE_REDIS_HOST': os.getenv("CACHE_HOST"),
