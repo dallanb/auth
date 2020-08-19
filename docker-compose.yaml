@@ -52,6 +52,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
+  mongodb:
+    container_name: db
+    image: mongo:3.6
+    volumes:
+      - # mongodb data :/data/db
+    env_file:
+      - # mongodb env
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongodb:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 20
   proxy:
     container_name: proxy
     build:
