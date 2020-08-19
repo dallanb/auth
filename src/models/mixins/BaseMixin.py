@@ -13,7 +13,7 @@ class BaseMixin(object):
 
     uuid = db.Column(UUIDType(binary=False), primary_key=True, unique=True, nullable=False)
     ctime = db.Column(db.BigInteger, default=time_now)
-    mtime = db.Column(db.BigInteger, default=time_now)
+    mtime = db.Column(db.BigInteger, onupdate=time_now)
 
     @staticmethod
     def init(mapper, connection, target):

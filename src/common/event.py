@@ -2,17 +2,18 @@ from .. import producer
 
 
 class Event:
+    def __init__(self):
+        pass
+
     @classmethod
-    def _generate_endpoint(cls, topic, value):
-        return {
-            'endpoint': f"/{topic}/{str(value)}"
-        }
+    def generate_endpoint(cls, topic, value):
+        return f"/{topic}/{str(value)}"
 
     @classmethod
     def send(cls, topic, value, key):
         if producer.producer:
             producer.send(
                 topic=topic,
-                value=cls._generate_endpoint(topic=topic, value=value),
+                value=value,
                 key=key
             )

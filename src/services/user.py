@@ -19,7 +19,15 @@ class User(Base):
 
     def create(self, **kwargs):
         user = self.init(model=self.user_model, **kwargs)
-        _ = self.notify(topic='auth', value=user.uuid, key='account_created')
+        _ = self.notify(
+            topic='auth',
+            value={
+                'username': user.username,
+                'email': user.email,
+                'uuid': str(user.uuid)
+            },
+            key='auth_created'
+        )
         return self.save(instance=user)
 
     def send_register_mail(self, user):
