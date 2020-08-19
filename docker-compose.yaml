@@ -1,0 +1,66 @@
+version: "3.2"
+
+services:
+  web:
+    container_name: web
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile
+    restart: on-failure
+    volumes:
+      - ./migrations:/home/app/migrations
+      - ./bin:/home/app/bin
+      - ./tests:/home/app/tests
+      - ./seeds:/home/app/seeds
+      - ./src:/home/app/src
+      - ./statics:/home/app/statics
+      - ./manage.py:/home/app/manage.py
+      - ./setup.py:/home/app/setup.py
+    env_file:
+      - # web env
+    healthcheck:
+      test: curl --fail -s web:5000/ping || exit 1
+      interval: 60s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - cache
+      - sql
+  cache:
+    container_name: cache
+    image: redis:6
+    restart: unless-stopped
+    volumes:
+      - # cache data :/var/lib/redis
+      - # cache conf :/usr/local/etc/redis/redis.conf
+    env_file:
+      - # cache env
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  sql:
+    container_name: sql
+    image: postgres:9.6
+    volumes:
+      - # sql data :/var/lib/postgresql/data/
+    env_file:
+      - # sql env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U account"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+  proxy:
+    container_name: proxy
+    build:
+      context: ./proxy
+      dockerfile: ./proxy/build/Dockerfile
+    restart: on-failure
+    volumes:
+      - ./statics/.:/usr/share/nginx/
+    ports:
+      - 80:80
+    depends_on:
+      - web
