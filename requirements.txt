@@ -5,6 +5,7 @@ Flask-Caching==1.9.0
 flask_CORS==3.0.8
 flask-marshmallow==0.12.0
 Flask-Migrate==2.5.3
+flask-mongoengine==0.9.5
 Flask_RESTful==0.3.8
 Flask-Seeder==1.1.1
 Flask-SQLAlchemy==2.4.1
@@ -19,6 +20,7 @@ psycopg2-binary==2.8.3
 pyJWT==1.7.1
 pylint==2.4.4
 pytest==5.4.3
+python-dateutil==2.8.1
 redis==3.5.3
 requests==2.23.0
 SQLAlchemy-Utils==0.36.6
