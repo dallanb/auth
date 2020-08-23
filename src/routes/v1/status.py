@@ -30,8 +30,8 @@ class Status(Base):
                 attr = self.token.generate_deactivate_token_attributes(username=users.items[0].username,
                                                                        kong_jwt_id=tokens.items[
                                                                            0].kong_jwt_id)
-                token = self.assign_attr(instance=tokens.items[0], attr=attr)
-                _ = self.save(instance=token)
+                token = self.token.assign_attr(instance=tokens.items[0], attr=attr)
+                _ = self.token.save(instance=token)
             self.throw_error(http_code=self.code.UNAUTHORIZED)
         return DataResponse(
             data={
