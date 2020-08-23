@@ -14,6 +14,17 @@ if [ "$DATABASE" = "{database_name}" ]; then
   echo "PostgreSQL started"
 fi
 
+if [ "$MONGO_DATABASE" = "{mongo_database_name}" ]; then
+  echo "Waiting for {mongo_database_name}..."
+
+  while ! nc -z $MONGO_HOST $MONGO_PORT; do
+    sleep 0.1
+  done
+
+  echo "MongoDB started"
+fi
+
+
 if [ ! -d "migrations/dev/versions" ]; then
   echo "Directory migrations/dev/versions does not exist."
   flask db init --directory=migrations/dev
