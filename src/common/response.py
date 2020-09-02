@@ -34,9 +34,9 @@ class DataResponse(Response):
     @staticmethod
     def marshallable():
         return {
-                   'msg': fields.String,
-                   'data': fields.Raw
-               }, 200, {}
+            'msg': fields.String,
+            'data': fields.Raw
+        }
 
 
 class ErrorResponse(Response):

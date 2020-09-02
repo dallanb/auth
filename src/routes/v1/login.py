@@ -26,10 +26,11 @@ class Login(Base):
 
         attr = self.access_token.generate_token_attributes(uuid=users.items[0].uuid, username=users.items[0].username)
         access_token = self.access_token.create(**attr)
-        #
-        # attr = self.refresh_token.generate_token_attributes(uuid=users.items[0].uuid, username=users.items[0].username)
-        # refresh_token = self.refresh_token.create(**attr)
 
+        attr = self.refresh_token.generate_token_attributes(uuid=users.items[0].uuid, username=users.items[0].username)
+        refresh_token = self.refresh_token.create(**attr)
+
+        # this looks disgusting please clean it up
         return DataResponse(
             data={
                 'user': self.dump(
@@ -40,8 +41,5 @@ class Login(Base):
                     schema=dump_access_token_schema,
                     instance=access_token
                 )['token']
-            },
-            cookie={
-
             }
-        )
+        ), 200, [('Set-Cookie', f'refresh_token=${refresh_token.token}')]

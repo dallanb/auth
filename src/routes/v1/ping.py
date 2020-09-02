@@ -11,5 +11,4 @@ class Ping(Base):
 
     @marshal_with(MessageResponse.marshallable())
     def get(self):
-        self.user.notify(topic='auth', value={'message': 'incoming ping'}, key='user_ping')
         return MessageResponse(message='pong')
