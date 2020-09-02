@@ -1,3 +1,3 @@
+from .access_token import AccessToken
 from .base import Base
-from .token import Token
 from .user import User

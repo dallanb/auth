@@ -9,7 +9,7 @@ def check_auth(f):
     def wrap(*args, **kwargs):
         try:
             g.auth = request.headers.get('Authorization', None)
-            g.token = g.auth.split(" ")[1]
+            g.access_token = g.auth.split(" ")[1]
         except Exception:
             raise ManualException(code=HTTPStatus.UNAUTHORIZED.value, msg=HTTPStatus.UNAUTHORIZED.phrase)
         return f(*args, **kwargs)

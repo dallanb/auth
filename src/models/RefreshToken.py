@@ -4,9 +4,8 @@ from .. import db
 from ..common.enums import TokenStatusEnum
 
 
-class Token(db.Model, BaseMixin, KongMixin):
+class RefreshToken(db.Model, BaseMixin, KongMixin):
     token = db.Column(db.String, unique=True, nullable=False)
-    kong_jwt_id = db.Column(UUIDType(binary=False), unique=False, nullable=True)
 
     # FK
     user_uuid = db.Column(UUIDType(binary=False), db.ForeignKey('user.uuid'), nullable=False)
@@ -20,4 +19,4 @@ class Token(db.Model, BaseMixin, KongMixin):
         super().__init__(*args, **kwargs)
 
 
-Token.register()
+RefreshToken.register()
