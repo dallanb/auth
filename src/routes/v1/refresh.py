@@ -22,7 +22,6 @@ class Refresh(Base):
             self.throw_error(http_code=self.code.BAD_REQUEST)
 
         # all of this needs to be cleaned up also status api
-        self.logger.info(refresh_token)
         refresh_tokens = self.refresh_token.find(token=refresh_token)
         if not refresh_tokens.total:
             self.throw_error(http_code=self.code.BAD_REQUEST)
@@ -36,12 +35,6 @@ class Refresh(Base):
         users = self.user.find(uuid=refresh_tokens.items[0].user_uuid)
         if not users.total:
             self.throw_error(http_code=self.code.INTERNAL_SERVER_ERROR)
-        access_tokens = self.access_token.find(user_uuid=refresh_tokens.items[0].user_uuid, status='active')
-        if access_tokens.total:
-            for access_token in access_tokens.items:
-                attr = self.access_token.generate_deactivate_token_attributes(username=users.items[0].username,
-                                                                              kong_jwt_id=access_token.kong_jwt_id)
-                _ = self.access_token.apply(instance=access_token, **attr)
 
         # create new access token
         attr = self.access_token.generate_token_attributes(uuid=users.items[0].uuid, username=users.items[0].username)
