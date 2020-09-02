@@ -38,4 +38,4 @@ class Register(Base):
                     instance=access_token
                 )['token']
             }
-        ), 200, [('Set-Cookie', f'refresh_token=${refresh_token.token}')]
+        ), 200, [('Set-Cookie', f'refresh_token={refresh_token.token}')]
