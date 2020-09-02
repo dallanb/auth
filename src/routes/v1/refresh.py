@@ -55,3 +55,4 @@ class Refresh(Base):
                 )['token']
             }
         )
+
