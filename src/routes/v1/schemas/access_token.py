@@ -4,11 +4,11 @@ from webargs import fields
 from ....common.enums import TokenStatusEnum
 
 
-class DumpTokenSchema(Schema):
+class DumpAccessTokenSchema(Schema):
     uuid = fields.UUID()
     token = fields.String()
     kong_jwt_id = fields.UUID()
     status = EnumField(TokenStatusEnum)
 
 
-dump_token_schema = DumpTokenSchema()
+dump_access_token_schema = DumpAccessTokenSchema()

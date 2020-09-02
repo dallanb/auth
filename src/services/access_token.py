@@ -1,4 +1,5 @@
 import logging
+from http import HTTPStatus
 
 from .base import Base
 from ..common.mail import Mail
@@ -18,6 +19,16 @@ class AccessToken(Base):
 
     def create(self, **kwargs):
         access_token = self.init(model=self.access_token_model, **kwargs)
+        return self.save(instance=access_token)
+
+    def update(self, uuid, **kwargs):
+        access_tokens = self.find(uuid=uuid)
+        if not access_tokens.total:
+            self.error(code=HTTPStatus.NOT_FOUND)
+        return self.apply(instance=access_tokens.items[0], **kwargs)
+
+    def apply(self, instance, **kwargs):
+        access_token = self.assign_attr(instance=instance, attr=kwargs)
         return self.save(instance=access_token)
 
     def generate_token_attributes(self, uuid, username):

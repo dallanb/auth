@@ -9,71 +9,71 @@ services:
     restart: always
     ports:
       - 8080:8080
-  account:
-    container_name: account
+  auth:
+    container_name: auth
     build:
-      context: ${HUNCHO_DIR}/services/account
-      dockerfile: ${HUNCHO_DIR}/services/account/build/Dockerfile
+      context: ${HUNCHO_DIR}/services/auth
+      dockerfile: ${HUNCHO_DIR}/services/auth/build/Dockerfile
     restart: on-failure
     volumes:
-      - ${HUNCHO_DIR}/services/account/migrations:/home/app/migrations
-      - ${HUNCHO_DIR}/services/account/bin:/home/app/bin
-      - ${HUNCHO_DIR}/services/account/tests:/home/app/tests
-      - ${HUNCHO_DIR}/services/account/src:/home/app/src
-      - ${HUNCHO_DIR}/services/account/statics:/home/app/statics
-      - ${HUNCHO_DIR}/services/account/manage.py:/home/app/manage.py
-      - ${HUNCHO_DIR}/services/account/setup.py:/home/app/setup.py
+      - ${HUNCHO_DIR}/services/auth/migrations:/home/app/migrations
+      - ${HUNCHO_DIR}/services/auth/bin:/home/app/bin
+      - ${HUNCHO_DIR}/services/auth/tests:/home/app/tests
+      - ${HUNCHO_DIR}/services/auth/src:/home/app/src
+      - ${HUNCHO_DIR}/services/auth/statics:/home/app/statics
+      - ${HUNCHO_DIR}/services/auth/manage.py:/home/app/manage.py
+      - ${HUNCHO_DIR}/services/auth/setup.py:/home/app/setup.py
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.account
+      - ${HUNCHO_DIR}/env/dev/.env.auth
     healthcheck:
-      test: curl --fail -s account:5000/ping || exit 1
+      test: curl --fail -s auth:5000/ping || exit 1
       interval: 60s
       timeout: 5s
       retries: 5
     depends_on:
-      - account_cache
-      - account_db
-  account_cache:
-    container_name: account_cache
+      - auth_cache
+      - auth_db
+  auth_cache:
+    container_name: auth_cache
     build:
       context: ${HUNCHO_DIR}/services/redis
       dockerfile: ${HUNCHO_DIR}/services/redis/build/Dockerfile
     restart: unless-stopped
     volumes:
-      - ${HUNCHO_DIR}/data/dev/account_cache/redis_data:/var/lib/redis
-      - ${HUNCHO_DIR}/data/dev/account_cache/redis.conf:/usr/local/etc/redis/redis.conf
+      - ${HUNCHO_DIR}/data/dev/auth_cache/redis_data:/var/lib/redis
+      - ${HUNCHO_DIR}/data/dev/auth_cache/redis.conf:/usr/local/etc/redis/redis.conf
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.account_cache
+      - ${HUNCHO_DIR}/env/dev/.env.auth_cache
     healthcheck:
       test: ["CMD", "redis-cli","ping"]
       interval: 30s
       timeout: 10s
       retries: 5
-  account_db:
-    container_name: account_db
+  auth_db:
+    container_name: auth_db
     build:
       context: ${HUNCHO_DIR}/services/postgresql
       dockerfile: ${HUNCHO_DIR}/services/postgresql/build/Dockerfile
       args:
         POSTGRES_VERSION: 9.6
     volumes:
-      - ${HUNCHO_DIR}/data/dev/account_db/data:/var/lib/postgresql/data/
+      - ${HUNCHO_DIR}/data/dev/auth_db/data:/var/lib/postgresql/data/
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.account_db
+      - ${HUNCHO_DIR}/env/dev/.env.auth_db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U account"]
+      test: ["CMD-SHELL", "pg_isready -U auth"]
       interval: 10s
       timeout: 5s
       retries: 20
-  account_proxy:
-    container_name: account_proxy
+  auth_proxy:
+    container_name: auth_proxy
     build:
-      context: ${HUNCHO_DIR}/services/account/proxy
-      dockerfile: ${HUNCHO_DIR}/services/account/proxy/build/Dockerfile
+      context: ${HUNCHO_DIR}/services/auth/proxy
+      dockerfile: ${HUNCHO_DIR}/services/auth/proxy/build/Dockerfile
     restart: on-failure
     volumes:
-      - ${HUNCHO_DIR}/services/account/statics/.:/usr/share/nginx/
+      - ${HUNCHO_DIR}/services/auth/statics/.:/usr/share/nginx/
     ports:
       - 80:80
     depends_on:
-      - account
+      - auth

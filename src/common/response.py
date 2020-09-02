@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from flask_restful import fields
 from http import HTTPStatus
+
+from flask_restful import fields
 
 
 class Response(ABC):
@@ -28,13 +29,14 @@ class DataResponse(Response):
     def __init__(self, **kwargs):
         self.msg = HTTPStatus.OK.phrase
         self.data = kwargs.get('data', None)
+        self.headers = {}
 
     @staticmethod
     def marshallable():
         return {
-            'msg': fields.String,
-            'data': fields.Raw
-        }
+                   'msg': fields.String,
+                   'data': fields.Raw
+               }, 200, {}
 
 
 class ErrorResponse(Response):

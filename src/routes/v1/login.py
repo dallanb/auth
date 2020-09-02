@@ -1,11 +1,11 @@
 from flask import request
 from flask_restful import marshal_with
-from .schemas import login_form_schema, dump_user_schema, dump_access_token_schema
-from ...models import User, AccessToken
-from ...common.response import DataResponse
-from ...services import User, AccessToken
 
 from . import Base
+from .schemas import login_form_schema, dump_user_schema, dump_access_token_schema
+from ...common.response import DataResponse
+from ...models import User, AccessToken
+from ...services import User, AccessToken, RefreshToken
 
 
 class Login(Base):
@@ -13,6 +13,7 @@ class Login(Base):
         Base.__init__(self)
         self.user = User()
         self.access_token = AccessToken()
+        self.refresh_token = RefreshToken()
 
     @marshal_with(DataResponse.marshallable())
     def post(self):
@@ -25,6 +26,10 @@ class Login(Base):
 
         attr = self.access_token.generate_token_attributes(uuid=users.items[0].uuid, username=users.items[0].username)
         access_token = self.access_token.create(**attr)
+        #
+        # attr = self.refresh_token.generate_token_attributes(uuid=users.items[0].uuid, username=users.items[0].username)
+        # refresh_token = self.refresh_token.create(**attr)
+
         return DataResponse(
             data={
                 'user': self.dump(
@@ -35,5 +40,8 @@ class Login(Base):
                     schema=dump_access_token_schema,
                     instance=access_token
                 )['token']
+            },
+            cookie={
+
             }
         )
