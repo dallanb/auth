@@ -16,6 +16,7 @@ class Login(Base):
 
     @marshal_with(DataResponse.marshallable())
     def post(self):
+        self.logger.info(request.get_json())
         data = self.clean(schema=login_form_schema, instance=request.get_json())
         users = self.user.find(email=data['email'])
         if not users.total:
