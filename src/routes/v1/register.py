@@ -33,7 +33,7 @@ class Register(Base):
                     schema=dump_user_schema,
                     instance=user
                 ),
-                'token': self.dump(
+                'access_token': self.dump(
                     schema=dump_access_token_schema,
                     instance=access_token
                 )['token']
