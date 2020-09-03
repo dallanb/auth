@@ -13,7 +13,7 @@ app.config.from_object("src.config.Config")
 # cache
 cache = Cache(app, config=app.config['REDIS_CONFIG'])
 # cors
-CORS(app)
+CORS(app, supports_credentials=True)
 # db
 db = SQLAlchemy(app)
 # migrate
@@ -48,7 +48,7 @@ from .common import (
     ErrorResponse
 )
 
-if app.config['ENV'] != 'development':
+if app.config['ENV'] == 'development':
     # error handling
     @app.errorhandler(Exception)
     @marshal_with(ErrorResponse.marshallable())
