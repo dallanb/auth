@@ -2,7 +2,7 @@ from flask import request
 from flask_restful import marshal_with
 
 from . import Base
-from .schemas import dump_access_token_schema
+from .schemas import dump_access_token_schema, dump_user_schema
 from ...common.response import DataResponse
 from ...common.utils import decode_token
 from ...services import User, RefreshToken, AccessToken
@@ -42,6 +42,10 @@ class Refresh(Base):
 
         return DataResponse(
             data={
+                'user': self.dump(
+                    schema=dump_user_schema,
+                    instance=users.items[0]
+                ),
                 'access_token': self.dump(
                     schema=dump_access_token_schema,
                     instance=access_token
