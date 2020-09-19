@@ -11,7 +11,8 @@ import logging.config
 app = Flask(__name__)
 app.config.from_object("src.config.Config")
 # cache
-cache = Cache(app, config=app.config['REDIS_CONFIG'])
+# cache = Cache(app, config=app.config['REDIS_CONFIG'])
+cache = None
 # cors
 CORS(app, supports_credentials=True)
 # db
@@ -75,3 +76,4 @@ def handle_request():
     g.cache = cache
     g.db = db
     g.config = app.config
+

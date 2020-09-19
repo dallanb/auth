@@ -29,14 +29,3 @@ class User(Base):
             key='auth_created'
         )
         return self.save(instance=user)
-
-    def send_register_mail(self, user):
-        try:
-            html = self.mail.generate_body('register', user=user)
-            self.mail.send(
-                to=user['email'],
-                subject='Tech Tapir Registration',
-                html=html
-            )
-        except Exception as e:
-            raise ManualException(code=HTTPStatus.NOT_FOUND.value, msg=HTTPStatus.NOT_FOUND.phrase)
