@@ -1,60 +1,63 @@
 import collections
+
 import inflect
 from sqlalchemy import inspect
-from ..common.error import *
-from ..common.cleaner import Cleaner
+
 from .. import db
+from ..common.cleaner import Cleaner
+from ..common.error import *
 
 
 class DB:
-    @classmethod
     # Helpers
+    @classmethod
     def _query_builder(cls, model, filters=[], expand=[], include=[], sort_by=None, limit=None, offset=None):
         query = db.session.query(model)
-        for k, v in filters:
-            if k == 'like':
-                for like_k, like_v in v:
-                    search = "%{}%".format(like_v)
-                    query = query.filter(like_k.like(search))
-            if k == 'equal':
-                for equal_k, equal_v in v:
-                    query = query.filter(equal_k == equal_v)
-            if k == 'gt':
-                for gt_k, gt_v in v:
-                    query = query.filter(gt_k > gt_v)
-            if k == 'gte':
-                for gte_k, gte_v in v:
-                    query = query.filter(gte_k >= gte_v)
-            if k == 'lt':
-                for lt_k, lt_v in v:
-                    query = query.filter(lt_k < lt_v)
-            if k == 'lte':
-                for lte_k, lte_v in v:
-                    query = query.filter(lte_k <= lte_v)
+        for logic_operator, filter_arr in filters:
+            criterion = []
+            for key, value in filter_arr:
+                if key == 'like':
+                    for like_k, like_v in value:
+                        search = "%{}%".format(like_v)
+                        criterion.append(like_k.like(search))
+                if key == 'equal':
+                    for equal_k, equal_v in value:
+                        criterion.append(equal_k == equal_v)
+                if key == 'gt':
+                    for gt_k, gt_v in value:
+                        criterion.append(gt_k > gt_v)
+                if key == 'gte':
+                    for gte_k, gte_v in value:
+                        criterion.append(gte_k >= gte_v)
+                if key == 'lt':
+                    for lt_k, lt_v in value:
+                        criterion.append(lt_k < lt_v)
+                if key == 'lte':
+                    for lte_k, lte_v in value:
+                        criterion.append(lte_k <= lte_v)
+                if key == 'in':
+                    for in_k, in_v in value:
+                        criterion.append(in_k.in_(in_v))
+            if logic_operator == 'or':
+                query = query.filter(or_(*criterion))
+            if logic_operator == 'and':
+                query = query.filter(and_(*criterion))
         for i, k in enumerate(expand):
             tables = k.split('.')
+            options = db.lazyload(getattr(model, tables[0]))
             for j, table in enumerate(tables):
-                if j == 0:
-                    # query = query.join(getattr(model, table))
-                    options = db.lazyload(getattr(model, table))
-                else:
+                if j > 0:
                     nested_class = cls._get_class_by_tablename(tables[j - 1])
-                    # query = query.join(getattr(nested_class, table))
                     options = options.lazyload(getattr(nested_class, table))
-            if i == len(expand) - 1:
-                query = query.options(options)
+            query = query.options(options)
         for i, k in enumerate(include):
             tables = k.split('.')
+            options = db.joinedload(getattr(model, tables[0]))
             for j, table in enumerate(tables):
-                if j == 0:
-                    # query = query.join(getattr(model, table))
-                    options = db.joinedload(getattr(model, table))
-                else:
+                if j > 0:
                     nested_class = cls._get_class_by_tablename(cls._singularize(tables[j - 1]))
-                    # query = query.join(getattr(nested_class, table))
                     options = options.joinedload(getattr(nested_class, table))
-            if i == len(include) - 1:
-                query = query.options(options)
+            query = query.options(options)
         if sort_by is not None:
             direction = re.search('[.](a|de)sc', sort_by)
             if direction is not None:
@@ -98,7 +101,88 @@ class DB:
         return p.singular_noun(tablename)
 
     @classmethod
+    def _generate_equal_filter(cls, model, **kwargs):
+        equal_filter = []
+        for k, v in kwargs.items():
+            equal_filter.append(
+                (
+                    'and',
+                    [
+                        ('equal', [(getattr(model, k), v)])
+                    ]
+                )
+            )
+        return equal_filter
+
+    @classmethod
+    def _generate_nested_filter(cls, nested):
+        nested_filter = []
+        for k, v in nested.items():
+            nested_class = cls._get_class_by_tablename(k)
+            for nested_k, nested_v in v.items():
+                nested_filter.append(
+                    (
+                        'and',
+                        [
+                            ('equal', [(getattr(nested_class, nested_k), nested_v)])
+                        ]
+                    )
+                )
+        return nested_filter
+
+    @classmethod
+    def _generate_search_filter(cls, model, search):
+        search_filter = []
+        if 'key' in search:
+            search_filter.append(
+                (
+                    'or',
+                    [
+                        (
+                            'like',
+                            [
+                                (getattr(model, field), search['key'])
+                            ]
+                        ) for field in search['fields']
+                    ]
+                )
+            )
+        return search_filter
+
+    @classmethod
+    def _generate_in_filter(cls, model, within):
+        in_filter = []
+        for k, v in within.items():
+            in_filter.append(
+                (
+                    'and',
+                    [
+                        ('in', [(getattr(model, k), v)])
+                    ]
+                )
+            )
+        return in_filter
+
+    @classmethod
+    def _generate_filters(cls, model, nested=None, search=None, within=None, **kwargs):
+        filters = []
+
+        if len(kwargs):
+            filters.extend(cls._generate_equal_filter(model=model, **kwargs))
+
+        if nested:
+            filters.extend(cls._generate_nested_filter(nested=nested))
+
+        if search:
+            filters.extend(cls._generate_search_filter(model=model, search=search))
+
+        if within:
+            filters.extend(cls._generate_in_filter(model=model, within=within))
+
+        return filters
+
     # Methods
+    @classmethod
     def init(cls, model, **kwargs):
         return model(**kwargs)
 
@@ -121,16 +205,9 @@ class DB:
 
     @classmethod
     # TODO: Consider using dataclass instead of a named tuple
-    def find(cls, model, page=None, per_page=None, expand=[], include=[], nested={}, **kwargs):
-        filters = []
-        for k, v in kwargs.items():
-            filters.append(('equal', [(getattr(model, k), v)]))
-
-        for k, v in nested.items():
-            nested_class = cls._get_class_by_tablename(k)
-            for nested_k, nested_v in v.items():
-                filters.append(('equal', [(getattr(nested_class, nested_k), nested_v)]))
-
+    def find(cls, model, page=None, per_page=None, expand=[], include=[], nested={}, search=None, within=None,
+             **kwargs):
+        filters = cls._generate_filters(model=model, nested=nested, search=search, within=within, **kwargs)
         query = cls._query_builder(model=model, filters=filters, include=include, expand=expand)
 
         if page is not None and per_page is not None:
