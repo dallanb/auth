@@ -7,9 +7,7 @@ from . import Base
 class Mailer(Base):
     def __init__(self):
         Base.__init__(self)
-        self.host = g.config['MAILER_HOST']
-        self.port = g.config['MAILER_PORT']
-        self.base_url = f'http://{self.host}:{self.port}'
+        self.base_url = g.config['MAILER_URL']
 
     # create a Kong consumer
     def send_mail(self, to, subject, html, text=None):

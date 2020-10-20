@@ -3,9 +3,7 @@ version: "3.2"
 services:
   adminer:
     container_name: adminer
-    build:
-      context: ${HUNCHO_DIR}/services/adminer
-      dockerfile: ${HUNCHO_DIR}/services/adminer/build/Dockerfile
+    image: adminer:latest
     restart: always
     ports:
       - 8080:8080
@@ -32,36 +30,15 @@ services:
       interval: 60s
       timeout: 5s
       retries: 5
+    ports:
+      - 20007:5000
     depends_on:
-#      - auth_cache
       - auth_db
     networks:
       - app-net
-#  auth_cache:
-#    container_name: auth_cache
-#    build:
-#      context: ${HUNCHO_DIR}/services/redis
-#      dockerfile: ${HUNCHO_DIR}/services/redis/build/Dockerfile
-#    restart: unless-stopped
-#    volumes:
-#      - ${HUNCHO_DIR}/data/dev/auth_cache/redis_data:/var/lib/redis
-#      - ${HUNCHO_DIR}/data/dev/auth_cache/redis.conf:/usr/local/etc/redis/redis.conf
-#    env_file:
-#      - ${HUNCHO_DIR}/env/dev/.env.auth_cache
-#    healthcheck:
-#      test: ["CMD", "redis-cli","ping"]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 5
-#    networks:
-#      - app-net
   auth_db:
     container_name: auth_db
-    build:
-      context: ${HUNCHO_DIR}/services/postgresql
-      dockerfile: ${HUNCHO_DIR}/services/postgresql/build/Dockerfile
-      args:
-        POSTGRES_VERSION: 9.6
+    image: postgres:9.6
     volumes:
       - ${HUNCHO_DIR}/data/dev/auth_db/data:/var/lib/postgresql/data/
     env_file:
@@ -73,21 +50,6 @@ services:
       retries: 20
     networks:
       - app-net
-  auth_proxy:
-    container_name: auth_proxy
-    build:
-      context: ${HUNCHO_DIR}/services/auth/proxy
-      dockerfile: ${HUNCHO_DIR}/services/auth/proxy/build/Dockerfile
-    restart: on-failure
-    volumes:
-      - ${HUNCHO_DIR}/services/auth/statics/.:/usr/share/nginx/
-    ports:
-      - 80:80
-    depends_on:
-      - auth
-    networks:
-      - app-net
 networks:
-    app-net:
-        external:
-            name: build_app-net
+  app-net:
+    driver: bridge

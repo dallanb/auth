@@ -55,11 +55,7 @@ services:
 #      retries: 5
   auth_db:
     container_name: auth_db
-    build:
-      context: ${HUNCHO_DIR}/services/postgresql
-      dockerfile: ${HUNCHO_DIR}/services/postgresql/build/Dockerfile
-      args:
-        POSTGRES_VERSION: 9.6
+    image: postgres:9.6
     volumes:
       - ${HUNCHO_DIR}/data/qaw/auth_db/data:/var/lib/postgresql/data/
     env_file:
@@ -71,21 +67,6 @@ services:
       retries: 20
     networks:
       - app-net
-  auth_proxy:
-    container_name: auth_proxy
-    build:
-      context: ${HUNCHO_DIR}/services/auth/proxy
-      dockerfile: ${HUNCHO_DIR}/services/auth/proxy/build/Dockerfile
-    restart: on-failure
-    volumes:
-      - ${HUNCHO_DIR}/services/auth/statics/.:/usr/share/nginx/
-    ports:
-      - 80:80
-    depends_on:
-      - auth
-    networks:
-      - app-net
 networks:
-    app-net:
-        external:
-            name: build_app-net
+  app-net:
+    driver: bridge
