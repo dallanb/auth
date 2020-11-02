@@ -1,7 +1,7 @@
 import collections
 
 import inflect
-from sqlalchemy import inspect
+from sqlalchemy import inspect, or_, and_
 
 from .. import db
 from ..common.cleaner import Cleaner
@@ -38,6 +38,9 @@ class DB:
                 if key == 'in':
                     for in_k, in_v in value:
                         criterion.append(in_k.in_(in_v))
+                if key == 'has_key':
+                    for has_key_k, has_key_v in value:
+                        criterion.append(has_key_k.has_key(has_key_v))
             if logic_operator == 'or':
                 query = query.filter(or_(*criterion))
             if logic_operator == 'and':
@@ -164,7 +167,22 @@ class DB:
         return in_filter
 
     @classmethod
-    def _generate_filters(cls, model, nested=None, search=None, within=None, **kwargs):
+    def _generate_has_key_filter(cls, model, has_key):
+        has_key_filter = []
+        for k, v in has_key.items():
+            has_key_filter.append(
+                (
+                    'and',
+                    [
+                        ('has_key', [(getattr(model, k), v)])
+                    ]
+                )
+            )
+
+        return has_key_filter
+
+    @classmethod
+    def _generate_filters(cls, model, nested=None, search=None, within=None, has_key=None, **kwargs):
         filters = []
 
         if len(kwargs):
@@ -178,6 +196,9 @@ class DB:
 
         if within:
             filters.extend(cls._generate_in_filter(model=model, within=within))
+
+        if has_key:
+            filters.extend(cls._generate_has_key_filter(model=model, has_key=has_key))
 
         return filters
 
@@ -206,8 +227,9 @@ class DB:
     @classmethod
     # TODO: Consider using dataclass instead of a named tuple
     def find(cls, model, page=None, per_page=None, expand=[], include=[], nested={}, search=None, within=None,
-             **kwargs):
-        filters = cls._generate_filters(model=model, nested=nested, search=search, within=within, **kwargs)
+             has_key=None, **kwargs):
+        filters = cls._generate_filters(model=model, nested=nested, search=search, within=within, has_key=has_key,
+                                        **kwargs)
         query = cls._query_builder(model=model, filters=filters, include=include, expand=expand)
 
         if page is not None and per_page is not None:
