@@ -29,12 +29,10 @@ def clear_cache():
 
 
 def initialize_statuses():
-    with app.app_context():
-        g.src = src
-        init_user_status(status_enums=common.UserStatusEnum)
-        init_user_role(role_enums=common.UserRoleEnum)
-        init_token_status(status_enums=common.TokenStatusEnum)
-        return
+    init_user_status(status_enums=common.UserStatusEnum)
+    init_user_role(role_enums=common.UserRoleEnum)
+    init_token_status(status_enums=common.TokenStatusEnum)
+    return
 
 
 @cli.command("init")

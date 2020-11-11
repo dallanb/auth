@@ -3,13 +3,15 @@ import threading
 
 from kafka import KafkaProducer
 
+from src import app
+
 
 class Producer(threading.Thread):
-    def __init__(self, url, topic, value, key):
+    def __init__(self, topic, value, key):
         threading.Thread.__init__(self)
         self.stop_event = threading.Event()
         self.producer = None
-        self.url = url
+        self.url = app.config['KAFKA_URL']
         self.topic = topic
         self.value = value
         self.key = key
