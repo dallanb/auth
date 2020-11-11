@@ -1,19 +1,16 @@
-from .. import producer
+from src import app
+
+from ..libs import Producer
 
 
 class Event:
-    def __init__(self):
-        pass
-
     @classmethod
-    def generate_endpoint(cls, topic, value):
-        return f"/{topic}/{str(value)}"
+    def _generate_endpoint(cls, topic, value):
+        return {
+            'endpoint': f"/{topic}/{str(value)}"
+        }
 
     @classmethod
     def send(cls, topic, value, key):
-        if producer.producer:
-            producer.send(
-                topic=topic,
-                value=value,
-                key=key
-            )
+        producer = Producer(url=app.config['KAFKA_URL'], topic=topic, value=value, key=key)
+        producer.start()
