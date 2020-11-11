@@ -1,8 +1,7 @@
-from flask import g
 from flask.cli import FlaskGroup
 from src import app, db, common
+
 from bin import init_user_role, init_user_status, init_token_status
-import src
 
 cli = FlaskGroup(app)
 
