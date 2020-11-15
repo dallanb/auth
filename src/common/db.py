@@ -1,4 +1,5 @@
 import collections
+import re
 
 import inflect
 from sqlalchemy import inspect, or_, and_
@@ -226,11 +227,11 @@ class DB:
 
     @classmethod
     # TODO: Consider using dataclass instead of a named tuple
-    def find(cls, model, page=None, per_page=None, expand=[], include=[], nested={}, search=None, within=None,
-             has_key=None, **kwargs):
+    def find(cls, model, page=None, per_page=None, expand=[], include=[], sort_by=None, nested={}, search=None,
+             within=None, has_key=None, **kwargs):
         filters = cls._generate_filters(model=model, nested=nested, search=search, within=within, has_key=has_key,
                                         **kwargs)
-        query = cls._query_builder(model=model, filters=filters, include=include, expand=expand)
+        query = cls._query_builder(model=model, filters=filters, include=include, expand=expand, sort_by=sort_by)
 
         if page is not None and per_page is not None:
             paginate = query.paginate(page, per_page, False)
