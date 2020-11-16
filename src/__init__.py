@@ -32,17 +32,6 @@ import logging.config
 
 logging.config.dictConfig(app.config['LOGGING_CONFIG'])
 
-# import libs
-from .lib import *
-
-# event
-producer = Producer(host=app.config['KAFKA_HOST'], port=app.config['KAFKA_PORT'])
-
-from .event import new_event_listener
-
-consumer = Consumer(host=app.config['KAFKA_HOST'], port=app.config['KAFKA_PORT'],
-                    topics=app.config['KAFKA_TOPICS'], event_listener=new_event_listener)
-
 # import models
 from .models import *
 # import routes
@@ -67,17 +56,13 @@ if app.config['ENV'] != 'development':
     def handle_manual_error(error):
         return ErrorResponse(code=error.code, msg=error.msg, err=error.err), error.code
 
+# import libs
+from .libs import *
+from .event import new_event_listener
+
+consumer = Consumer(topics=app.config['KAFKA_TOPICS'], event_listener=new_event_listener)
+
 
 @app.before_first_request
-def handle_first_request():
+def func():
     consumer.start()
-    producer.start()
-
-
-# before each request
-@app.before_request
-def handle_request():
-    g.logger = logging
-    g.cache = cache
-    g.db = db
-    g.config = app.config

@@ -9,8 +9,7 @@ class Config(object):
     TESTING = os.getenv("TESTING", False)
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite://")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    KAFKA_HOST = os.getenv("KAFKA_HOST")
-    KAFKA_PORT = os.getenv("KAFKA_PORT")
+    KAFKA_URL = os.getenv("KAFKA_URL")
     KAFKA_TOPICS = os.getenv("KAFKA_TOPICS").split(",")
     MONGODB_SETTINGS = {
         'host': os.getenv("MONGO_URL")
