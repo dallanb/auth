@@ -1,12 +1,11 @@
-from flask import Flask, g
-from flask_caching import Cache
+import logging.config
+
+from flask import Flask
 from flask_cors import CORS
+from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_restful import Api, marshal_with
 from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
-
-import logging.config
 
 app = Flask(__name__)
 app.config.from_object("src.config.Config")
@@ -27,17 +26,6 @@ api = Api(app)
 # logging
 logging.config.dictConfig(app.config['LOGGING_CONFIG'])
 
-# import libs
-from .lib import *
-
-# event
-producer = Producer(host=app.config['KAFKA_HOST'], port=app.config['KAFKA_PORT'])
-
-from .event import new_event_listener
-
-consumer = Consumer(host=app.config['KAFKA_HOST'], port=app.config['KAFKA_PORT'],
-                    topics=app.config['KAFKA_TOPICS'], event_listener=new_event_listener)
-
 # import models
 from .models import *
 # import routes
@@ -49,7 +37,7 @@ from .common import (
     ErrorResponse
 )
 
-if app.config['ENV'] == 'development':
+if app.config['ENV'] != 'development':
     # error handling
     @app.errorhandler(Exception)
     @marshal_with(ErrorResponse.marshallable())
@@ -62,18 +50,13 @@ if app.config['ENV'] == 'development':
     def handle_manual_error(error):
         return ErrorResponse(code=error.code, msg=error.msg), error.code
 
+# import libs
+from .libs import *
+from .event import new_event_listener
+
+consumer = Consumer(topics=app.config['KAFKA_TOPICS'], event_listener=new_event_listener)
+
 
 @app.before_first_request
-def handle_first_request():
+def func():
     consumer.start()
-    producer.start()
-
-
-# before each request
-@app.before_request
-def handle_request():
-    g.logger = logging
-    g.cache = cache
-    g.db = db
-    g.config = app.config
-

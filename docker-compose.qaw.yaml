@@ -3,7 +3,9 @@ version: "3.2"
 services:
   adminer:
     container_name: adminer
-    image: adminer:latest
+    build:
+      context: ${HUNCHO_DIR}/services/adminer
+      dockerfile: ${HUNCHO_DIR}/services/adminer/build/Dockerfile
     restart: always
     ports:
       - 8080:8080
@@ -13,7 +15,7 @@ services:
     container_name: auth
     build:
       context: ${HUNCHO_DIR}/services/auth
-      dockerfile: ${HUNCHO_DIR}/services/auth/build/Dockerfile
+      dockerfile: ${HUNCHO_DIR}/services/auth/build/Dockerfile.qaw
     restart: on-failure
     volumes:
       - ${HUNCHO_DIR}/services/auth/migrations:/home/app/migrations
@@ -24,25 +26,40 @@ services:
       - ${HUNCHO_DIR}/services/auth/manage.py:/home/app/manage.py
       - ${HUNCHO_DIR}/services/auth/setup.py:/home/app/setup.py
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.auth
+      - ${HUNCHO_DIR}/env/qaw/.env.auth
     healthcheck:
       test: curl --fail -s auth:5000/ping || exit 1
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
-    ports:
-      - 20007:5000
     depends_on:
+#      - auth_cache
       - auth_db
     networks:
       - app-net
+#  auth_cache:
+#    container_name: auth_cache
+#    build:
+#      context: ${HUNCHO_DIR}/services/redis
+#      dockerfile: ${HUNCHO_DIR}/services/redis/build/Dockerfile
+#    restart: unless-stopped
+#    volumes:
+#      - ${HUNCHO_DIR}/data/qaw/auth_cache/redis_data:/var/lib/redis
+#      - ${HUNCHO_DIR}/data/qaw/auth_cache/redis.conf:/usr/local/etc/redis/redis.conf
+#    env_file:
+#      - ${HUNCHO_DIR}/env/qaw/.env.auth_cache
+#    healthcheck:
+#      test: ["CMD", "redis-cli","ping"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
   auth_db:
     container_name: auth_db
     image: postgres:9.6
     volumes:
-      - ${HUNCHO_DIR}/data/dev/auth_db/data:/var/lib/postgresql/data/
+      - ${HUNCHO_DIR}/data/qaw/auth_db/data:/var/lib/postgresql/data/
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.auth_db
+      - ${HUNCHO_DIR}/env/qaw/.env.auth_db
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U auth"]
       interval: 10s

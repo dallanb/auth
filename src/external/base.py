@@ -1,10 +1,12 @@
+import logging
+
 import requests
 from flask import g
 
 
 class Base:
     def __init__(self):
-        self.logger = g.logger.getLogger(__name__)
+        self.logger = logging.getLogger(__name__)
 
     @staticmethod
     def get(**kwargs):

@@ -1,15 +1,12 @@
-from flask import g
-
 from . import Base
+from .. import app
 
 
 class Kong(Base):
     def __init__(self):
         Base.__init__(self)
-        self.host = g.config['KONG_HOST']
-        self.port = g.config['KONG_PORT']
-        self.base_url = f'http://{self.host}:{self.port}'
-        self.secret = g.config['SECRET_KEY']
+        self.base_url = app.config['KONG_URL']
+        self.secret = app.config['SECRET_KEY']
 
     # create a Kong consumer
     def create_consumer(self, uuid, username):

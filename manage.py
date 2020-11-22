@@ -1,8 +1,7 @@
-from flask import g
 from flask.cli import FlaskGroup
 from src import app, db, common
+
 from bin import init_user_role, init_user_status, init_token_status
-import src
 
 cli = FlaskGroup(app)
 
@@ -29,12 +28,10 @@ def clear_cache():
 
 
 def initialize_statuses():
-    with app.app_context():
-        g.src = src
-        init_user_status(status_enums=common.UserStatusEnum)
-        init_user_role(role_enums=common.UserRoleEnum)
-        init_token_status(status_enums=common.TokenStatusEnum)
-        return
+    init_user_status(status_enums=common.UserStatusEnum)
+    init_user_role(role_enums=common.UserRoleEnum)
+    init_token_status(status_enums=common.TokenStatusEnum)
+    return
 
 
 @cli.command("init")
