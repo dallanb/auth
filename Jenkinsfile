@@ -47,7 +47,7 @@ pipeline {
                 slackSend (color: '#0000FF', message: "STARTED: Recreating Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' ")
                 script {
                     if (dockerImage) {
-                        httpRequest url: 'http://192.168.0.100:9000/hooks/redeploy', contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: """
+                        httpRequest url: 'http://192.168.0.100:10001/hooks/redeploy', contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: """
                             {
                                 "project": {
                                     "name": "$container",
