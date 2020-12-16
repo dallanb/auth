@@ -18,7 +18,7 @@ class Register(Base):
     def post(self):
         data = self.clean(schema=register_form_schema, instance=request.get_json())
         user = self.user.create(username=data['username'], email=data['email'], password=data['password'],
-                                role='member',
+                                first_name=data['first_name'], last_name=data['last_name'], role='member',
                                 status='active')
         return DataResponse(
             data={
