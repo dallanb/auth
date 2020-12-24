@@ -1,4 +1,4 @@
-from .. import Producer
+from ..libs import Producer
 
 
 class Event:
