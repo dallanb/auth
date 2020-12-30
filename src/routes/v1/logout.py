@@ -2,6 +2,7 @@ from flask import g
 from flask_restful import marshal_with
 
 from . import Base
+from ...common import TokenStatusEnum
 from ...common.auth import check_auth
 from ...common.response import DataResponse
 from ...services import User, AccessToken, RefreshToken
@@ -17,7 +18,7 @@ class Logout(Base):
     @marshal_with(DataResponse.marshallable())
     @check_auth
     def post(self):
-        access_tokens = self.access_token.find(token=g.access_token, status='active')
+        access_tokens = self.access_token.find(token=g.access_token, status=TokenStatusEnum['active'])
         if not access_tokens.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
         users = self.user.find(uuid=access_tokens.items[0].user_uuid)
