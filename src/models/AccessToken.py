@@ -1,4 +1,5 @@
 from sqlalchemy_utils import UUIDType
+
 from .mixins import BaseMixin, KongMixin
 from .. import db
 from ..common.enums import TokenStatusEnum
@@ -10,10 +11,12 @@ class AccessToken(db.Model, BaseMixin, KongMixin):
 
     # FK
     user_uuid = db.Column(UUIDType(binary=False), db.ForeignKey('user.uuid'), nullable=False)
+    refresh_token_uuid = db.Column(UUIDType(binary=False), db.ForeignKey('refresh_token.uuid'), nullable=False)
     status = db.Column(db.Enum(TokenStatusEnum), db.ForeignKey('token_status.name'), nullable=True)
 
     # Relationship
     user = db.relationship("User")
+    refresh_token = db.relationship('RefreshToken')
     token_status = db.relationship("TokenStatus")
 
     def __init__(self, *args, **kwargs):

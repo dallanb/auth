@@ -31,10 +31,10 @@ class AccessToken(Base):
         access_token = self.assign_attr(instance=instance, attr=kwargs)
         return self.save(instance=access_token)
 
-    def generate_token_attributes(self, uuid, username):
+    def generate_token_attributes(self, uuid, username, expiry):
         key = str(generate_uuid())
         jwt_credential = self.access_token_model().create_jwt_credential(username=username, key=key)
-        jwt_token = encode_token(name=username, sub=str(uuid), iss=key)
+        jwt_token = encode_token(name=username, sub=str(uuid), iss=key, exp=expiry)
         return {
             'token': jwt_token.decode(),
             'kong_jwt_id': jwt_credential['id'],
