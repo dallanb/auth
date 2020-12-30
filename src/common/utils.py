@@ -20,7 +20,7 @@ def camel_to_snake(s):
 
 
 def encode_token(**kwargs):
-    exp = kwargs.get('exp', datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=300))
+    exp = kwargs.get('exp', datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=30))
     iat = kwargs.get('iat', datetime.datetime.utcnow())
     name = kwargs.get('name', None)
     sub = kwargs.get('sub', None)
