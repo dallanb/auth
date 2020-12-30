@@ -3,6 +3,7 @@ from flask_restful import marshal_with
 
 from . import Base
 from .schemas import dump_access_token_schema, dump_user_schema
+from ...common import TokenStatusEnum
 from ...common.response import DataResponse
 from ...common.utils import decode_token, generate_expiry
 from ...services import User, RefreshToken, AccessToken
@@ -22,7 +23,7 @@ class Refresh(Base):
         if not token:
             self.throw_error(http_code=self.code.BAD_REQUEST)
         # all of this needs to be cleaned up also status api
-        refresh_tokens = self.refresh_token.find(token=token, status='active')
+        refresh_tokens = self.refresh_token.find(token=token, status=TokenStatusEnum['active'])
         if not refresh_tokens.total:
             self.throw_error(http_code=self.code.BAD_REQUEST)
         try:
