@@ -19,7 +19,6 @@ class Refresh(Base):
     @marshal_with(DataResponse.marshallable())
     def get(self):
         token = request.cookies.get('refresh_token')
-        self.logger.info(self.config)
         if not token:
             self.throw_error(http_code=self.code.BAD_REQUEST)
         # all of this needs to be cleaned up also status api
