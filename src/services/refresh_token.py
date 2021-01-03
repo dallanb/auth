@@ -33,9 +33,8 @@ class RefreshToken(Base):
         return self.save(instance=refresh_token)
 
     @staticmethod
-    def generate_token_attributes(uuid, username):
+    def generate_token_attributes(uuid, username, expiry):
         key = str(generate_uuid())
-        expiry = datetime.datetime.utcnow() + datetime.timedelta(days=0, hours=3)
         jwt_token = encode_token(name=username, sub=str(uuid), iss=key,
                                  exp=expiry)
         return {

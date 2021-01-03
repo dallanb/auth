@@ -11,10 +11,10 @@ class user_notification:
         @wraps(f)
         def wrap(*args, **kwargs):
             self.service = args[0]
-            first_name = kwargs.pop('first_name', None)
-            last_name = kwargs.pop('last_name', None)
+            display_name = kwargs.pop('display_name', None)
+            country = kwargs.pop('country', None)
             new_instance = f(*args, **kwargs)
-            self.create(new_instance=new_instance, first_name=first_name, last_name=last_name)
+            self.create(new_instance=new_instance, display_name=display_name, country=country)
             return new_instance
 
         wrap.__doc__ = f.__doc__
@@ -29,13 +29,13 @@ class user_notification:
     def service(self, service):
         self._service = service
 
-    def create(self, new_instance, first_name, last_name):
+    def create(self, new_instance, display_name, country):
         key = 'auth_created'
         value = {
             'username': new_instance.username,
             'email': new_instance.email,
             'uuid': str(new_instance.uuid),
-            'first_name': first_name,
-            'last_name': last_name
+            'display_name': display_name,
+            'country': country
         }
         self.service.notify(topic=self.topic, value=value, key=key, )

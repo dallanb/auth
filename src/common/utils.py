@@ -48,3 +48,11 @@ def decode_token(token):
         raise ValueError('Invalid token. Please log in again.')
     except Exception as e:
         raise ValueError('Unknown error')
+
+
+def generate_expiry(seconds):
+    return datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=seconds)
+
+
+def seconds_remaining(expiry):
+    return (expiry - datetime.datetime.utcnow()).seconds

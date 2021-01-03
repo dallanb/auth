@@ -1,8 +1,11 @@
+from time import time
+
 from flask import g
 from flask_restful import marshal_with
 
 from . import Base
 from .schemas import dump_user_schema
+from ...common import TokenStatusEnum
 from ...common.auth import check_auth
 from ...common.response import DataResponse
 from ...common.utils import decode_token
@@ -21,11 +24,14 @@ class Status(Base):
         access_tokens = self.access_token.find(token=g.access_token)
         if not access_tokens.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
+        if access_tokens.items[0].status == TokenStatusEnum['inactive']:
+            self.throw_error(http_code=self.code.UNAUTHORIZED)
         users = self.user.find(uuid=access_tokens.items[0].user_uuid)
         if not users.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
         try:
-            _ = decode_token(token=access_tokens.items[0].token)
+            token = decode_token(token=access_tokens.items[0].token)  # grab expiry here
+            expiry = token['exp'] - int(time())
         except ValueError as e:
             if 'destroy_token' in e.args:
                 attr = self.access_token.generate_deactivate_token_attributes(username=users.items[0].username,
@@ -39,6 +45,7 @@ class Status(Base):
                 'user': self.dump(
                     schema=dump_user_schema,
                     instance=users.items[0]
-                )
+                ),
+                'expiry': expiry
             }
         )
