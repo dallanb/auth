@@ -1,11 +1,13 @@
 from sqlalchemy_utils import UUIDType
+
 from .mixins import BaseMixin, KongMixin
 from .. import db
 from ..common.enums import TokenStatusEnum
+from ..common.utils import generate_token
 
 
 class RefreshToken(db.Model, BaseMixin, KongMixin):
-    token = db.Column(db.String, unique=True, nullable=False)
+    token = db.Column(db.String, unique=True, nullable=False, default=generate_token)
 
     # FK
     user_uuid = db.Column(UUIDType(binary=False), db.ForeignKey('user.uuid'), nullable=False)

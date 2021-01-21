@@ -1,1 +1,2 @@
+from .invite_token_notification import invite_token_notification
 from .user_notification import user_notification
