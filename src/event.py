@@ -11,5 +11,6 @@ def new_event_listener(event):
     if topic == 'members':
         try:
             Member().handle_event(key=key, data=data)
-        except:
+        except Exception as ex:
+            logging.error(ex)
             logging.error('Member event err')
