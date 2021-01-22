@@ -8,7 +8,11 @@
                 <tr>You have been invited to try out Tech Tapir.</tr>
                 <tr>Please use the link below to create your account</tr>
                 <tr></tr>
-                <tr><a>https://local.techtapir.com:3000/register/{{ invite.token }}</a></tr>
+                <tr>
+                    <a href="https://local.techtapir.com:3000/register/?token={{ invite.token }}">
+                    https://local.techtapir.com:3000/register/?token={{ invite.token }}
+                    </a>
+                </tr>
 
                 <tr>Regards,</tr>
 
