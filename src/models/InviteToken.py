@@ -3,10 +3,11 @@ from sqlalchemy_utils import EmailType
 from .mixins import BaseMixin
 from .. import db
 from ..common.enums import TokenStatusEnum
+from ..common.utils import generate_token
 
 
 class InviteToken(db.Model, BaseMixin):
-    token = db.Column(db.String, unique=True, nullable=False)
+    token = db.Column(db.String, unique=True, nullable=False, default=generate_token)
     email = db.Column(EmailType, unique=False, nullable=False)
 
     # FK

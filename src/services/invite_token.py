@@ -34,7 +34,7 @@ class InviteToken(Base):
 
     def deactivate_tokens(self, email):
         query = self.db.clean_query(model=self.invite_token_model, email=email, status='active')
-        query.update(status='inactive')
+        query.update({self.invite_token_model.status: 'inactive'}, synchronize_session=False)
         return self.db.run_query(query=query)
 
     def send_invite(self, instance):
