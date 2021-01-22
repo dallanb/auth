@@ -19,7 +19,6 @@ class Refresh(Base):
     @marshal_with(DataResponse.marshallable())
     def get(self):
         token = request.cookies.get('refresh_token')
-
         if not token:
             self.throw_error(http_code=self.code.BAD_REQUEST)
         # all of this needs to be cleaned up also status api
@@ -38,7 +37,7 @@ class Refresh(Base):
             self.throw_error(http_code=self.code.INTERNAL_SERVER_ERROR)
 
         # create new access token
-        access_expiry = generate_expiry(self.config.ACCESS_EXP)
+        access_expiry = generate_expiry(self.config['ACCESS_EXP'])
         attr = self.access_token.generate_token_attributes(uuid=users.items[0].uuid, username=users.items[0].username,
                                                            expiry=access_expiry)
         access_token = self.access_token.create(**attr, refresh_token=refresh_tokens.items[0])

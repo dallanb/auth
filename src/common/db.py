@@ -1,36 +1,52 @@
 import collections
+import re
+
 import inflect
-from sqlalchemy import inspect
-from ..common.error import *
-from ..common.cleaner import Cleaner
+from sqlalchemy import inspect, or_, and_
+
 from .. import db
+from ..common.cleaner import Cleaner
+from ..common.error import *
 
 
 class DB:
-    @classmethod
     # Helpers
-    def _query_builder(cls, model, filters=[], expand=[], include=[], sort_by=None, limit=None, offset=None):
+    @classmethod  # TODO: refactor the entire query builder like i have for applying sort_by so that it can be used outside of this function
+    def _query_builder(cls, model, filters=[], expand=[], include=[], sort_by=None, limit=None,
+                       offset=None):
         query = db.session.query(model)
-        for k, v in filters:
-            if k == 'like':
-                for like_k, like_v in v:
-                    search = "%{}%".format(like_v)
-                    query = query.filter(like_k.like(search))
-            if k == 'equal':
-                for equal_k, equal_v in v:
-                    query = query.filter(equal_k == equal_v)
-            if k == 'gt':
-                for gt_k, gt_v in v:
-                    query = query.filter(gt_k > gt_v)
-            if k == 'gte':
-                for gte_k, gte_v in v:
-                    query = query.filter(gte_k >= gte_v)
-            if k == 'lt':
-                for lt_k, lt_v in v:
-                    query = query.filter(lt_k < lt_v)
-            if k == 'lte':
-                for lte_k, lte_v in v:
-                    query = query.filter(lte_k <= lte_v)
+        for logic_operator, filter_arr in filters:
+            criterion = []
+            for key, value in filter_arr:
+                if key == 'like':
+                    for like_k, like_v in value:
+                        like_format = "%{}%".format(like_v)
+                        criterion.append(like_k.like(like_format))
+                if key == 'equal':
+                    for equal_k, equal_v in value:
+                        criterion.append(equal_k == equal_v)
+                if key == 'gt':
+                    for gt_k, gt_v in value:
+                        criterion.append(gt_k > gt_v)
+                if key == 'gte':
+                    for gte_k, gte_v in value:
+                        criterion.append(gte_k >= gte_v)
+                if key == 'lt':
+                    for lt_k, lt_v in value:
+                        criterion.append(lt_k < lt_v)
+                if key == 'lte':
+                    for lte_k, lte_v in value:
+                        criterion.append(lte_k <= lte_v)
+                if key == 'in':
+                    for in_k, in_v in value:
+                        criterion.append(in_k.in_(in_v))
+                if key == 'has_key':
+                    for has_key_k, has_key_v in value:
+                        criterion.append(has_key_k.has_key(has_key_v))
+            if logic_operator == 'or':
+                query = query.filter(or_(*criterion))
+            if logic_operator == 'and':
+                query = query.filter(and_(*criterion))
         for i, k in enumerate(expand):
             tables = k.split('.')
             options = db.lazyload(getattr(model, tables[0]))
@@ -48,20 +64,25 @@ class DB:
                     options = options.joinedload(getattr(nested_class, table))
             query = query.options(options)
         if sort_by is not None:
-            direction = re.search('[.](a|de)sc', sort_by)
-            if direction is not None:
-                direction = direction.group()
-            key = sort_by.split(direction)[0]
-            if direction == '.asc':
-                query = query.order_by(getattr(model, key).asc())
-            elif direction == '.desc':
-                query = query.order_by(getattr(model, key).desc())
-            else:  # for now, lack of a direction will be interpreted as asc
-                query = query.order_by(getattr(model, key).asc())
+            query = cls.apply_query_order_by(model=model, query=query, sort_by=sort_by)
         if limit is not None:
             query = query.limit(limit)
         if offset is not None:
             query = query.offset(offset)
+        return query
+
+    @classmethod
+    def apply_query_order_by(cls, model, query, sort_by):
+        direction = re.search('[.](a|de)sc', sort_by)
+        if direction is not None:
+            direction = direction.group()
+        key = sort_by.split(direction)[0]
+        if direction == '.asc':
+            query = query.order_by(getattr(model, key).asc())
+        elif direction == '.desc':
+            query = query.order_by(getattr(model, key).desc())
+        else:  # for now, lack of a direction will be interpreted as asc
+            query = query.order_by(getattr(model, key).asc())
         return query
 
     @classmethod
@@ -90,6 +111,108 @@ class DB:
         return p.singular_noun(tablename)
 
     @classmethod
+    def _generate_equal_filter(cls, model, **kwargs):
+        equal_filter = []
+        for k, v in kwargs.items():
+            equal_filter.append(
+                (
+                    'and',
+                    [
+                        ('equal', [(getattr(model, k), v)])
+                    ]
+                )
+            )
+        return equal_filter
+
+    @classmethod
+    def _generate_nested_filter(cls, nested):
+        nested_filter = []
+        for k, v in nested.items():
+            nested_class = cls._get_class_by_tablename(k)
+            for nested_k, nested_v in v.items():
+                nested_filter.append(
+                    (
+                        'and',
+                        [
+                            ('equal', [(getattr(nested_class, nested_k), nested_v)])
+                        ]
+                    )
+                )
+        return nested_filter
+
+    @classmethod
+    def _generate_in_filter(cls, model, within):
+        in_filter = []
+        for k, v in within.items():
+            in_filter.append(
+                (
+                    'and',
+                    [
+                        ('in', [(getattr(model, k), v)])
+                    ]
+                )
+            )
+        return in_filter
+
+    @classmethod
+    def _generate_has_key_filter(cls, model, has_key):
+        has_key_filter = []
+        for k, v in has_key.items():
+            has_key_filter.append(
+                (
+                    'and',
+                    [
+                        ('has_key', [(getattr(model, k), v)])
+                    ]
+                )
+            )
+
+        return has_key_filter
+
+    @classmethod
+    def _generate_filters(cls, model, nested=None, within=None, has_key=None, **kwargs):
+        filters = []
+
+        if len(kwargs):
+            filters.extend(cls._generate_equal_filter(model=model, **kwargs))
+
+        if nested:
+            filters.extend(cls._generate_nested_filter(nested=nested))
+
+        if within:
+            filters.extend(cls._generate_in_filter(model=model, within=within))
+
+        if has_key:
+            filters.extend(cls._generate_has_key_filter(model=model, has_key=has_key))
+
+        return filters
+
+    @classmethod
+    def clean_query(cls, model, expand=[], include=[], sort_by=None, nested=None,
+                    within=None, has_key=None, **kwargs):
+        filters = cls._generate_filters(model=model, nested=nested, within=within, has_key=has_key,
+                                        **kwargs)
+        query = cls._query_builder(model=model, filters=filters, include=include, expand=expand,
+                                   sort_by=sort_by)
+        return query
+
+    @classmethod
+    def run_query(cls, query, **kwargs):
+        page = kwargs.get('page', None)
+        per_page = kwargs.get('per_page', None)
+
+        if page is not None and per_page is not None:
+            paginate = query.paginate(page, per_page, False)
+            items = paginate.items
+            total = paginate.total
+        else:
+            items = query.all()
+            total = len(items)
+
+        Find = collections.namedtuple('Find', ['items', 'total'])
+        return Find(items=items, total=total)
+
+    @classmethod
     # Methods
     def init(cls, model, **kwargs):
         return model(**kwargs)
@@ -102,7 +225,7 @@ class DB:
     def save(cls, instance):
         if not instance:
             raise MissingParamError(instance.__tablename__)
-        if not Cleaner.is_mapped(instance):
+        if not Cleaner().is_mapped(instance):
             raise InvalidTypeError(instance.__tablename__, 'mapped')
 
         if not cls._is_pending(instance):
@@ -113,28 +236,9 @@ class DB:
 
     @classmethod
     # TODO: Consider using dataclass instead of a named tuple
-    def find(cls, model, page=None, per_page=None, expand=[], include=[], nested={}, **kwargs):
-        filters = []
-        for k, v in kwargs.items():
-            filters.append(('equal', [(getattr(model, k), v)]))
-
-        for k, v in nested.items():
-            nested_class = cls._get_class_by_tablename(k)
-            for nested_k, nested_v in v.items():
-                filters.append(('equal', [(getattr(nested_class, nested_k), nested_v)]))
-
-        query = cls._query_builder(model=model, filters=filters, include=include, expand=expand)
-
-        if page is not None and per_page is not None:
-            paginate = query.paginate(page, per_page, False)
-            items = paginate.items
-            total = paginate.total
-        else:
-            items = query.all()
-            total = len(items)
-
-        Find = collections.namedtuple('Find', ['items', 'total'])
-        return Find(items=items, total=total)
+    def find(cls, model, page=None, per_page=None, **kwargs):
+        query = cls.clean_query(model=model, **kwargs)
+        return cls.run_query(query=query, page=page, per_page=per_page)
 
     @classmethod
     def destroy(cls, instance):
