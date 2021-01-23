@@ -33,9 +33,10 @@ class InviteToken(Base):
         return self.save(instance=invite_token)
 
     def deactivate_tokens(self, email):
-        query = self.db.clean_query(model=self.invite_token_model, email=email, status='active')
-        query.update({self.invite_token_model.status: 'inactive'}, synchronize_session=False)
-        return self.db.run_query(query=query)
+        self.db.clean_query(model=self.invite_token_model, email=email, status='active').update(
+            {self.invite_token_model.status: 'inactive'}, synchronize_session=False)
+        self.db.commit()
+        return
 
     def send_invite(self, instance):
         subject = 'Tech Tapir Invitation'
