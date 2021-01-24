@@ -1,4 +1,5 @@
 import datetime
+import secrets
 import uuid
 from time import time
 
@@ -13,6 +14,10 @@ def time_now():
 
 def generate_uuid():
     return uuid.uuid4()
+
+
+def generate_token():
+    return secrets.token_hex(32)
 
 
 def camel_to_snake(s):

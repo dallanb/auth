@@ -1,4 +1,5 @@
 from .base import Base
+from .invite import Invite
 from .login import Login
 from .logout import Logout
 from .ping import Ping
