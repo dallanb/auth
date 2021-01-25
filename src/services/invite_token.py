@@ -32,6 +32,12 @@ class InviteToken(Base):
         invite_token = self.assign_attr(instance=instance, attr=kwargs)
         return self.save(instance=invite_token)
 
+    def confirm_token(self, token, email):
+        invite_tokens = self.find(token=token, email=email)
+        if invite_tokens.total and invite_tokens.items[0].email == email:
+            return True
+        return False
+
     def deactivate_tokens(self, email):
         self.db.clean_query(model=self.invite_token_model, email=email, status='active').update(
             {self.invite_token_model.status: 'inactive'}, synchronize_session=False)

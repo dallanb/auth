@@ -3,7 +3,7 @@ from flask_restful import marshal_with
 
 from . import Base
 from .schemas import login_form_schema, dump_user_schema, dump_access_token_schema
-from ...common import generate_expiry
+from ...common import generate_expiry, UserStatusEnum
 from ...common.response import DataResponse
 from ...models import User, AccessToken
 from ...services import User, AccessToken, RefreshToken
@@ -24,6 +24,8 @@ class Login(Base):
             self.throw_error(http_code=self.code.NOT_FOUND)
         if data['password'] != users.items[0].password:
             self.throw_error(http_code=self.code.BAD_REQUEST, msg='User with provided credentials not found')
+        if not users.items[0].status == UserStatusEnum['active']:
+            self.throw_error(http_code=self.code.UNAUTHORIZED, msg=f'User account is {users.items[0].status.name}')
 
         refresh_expiry = generate_expiry(self.config['REFRESH_EXP'])
         attr = self.refresh_token.generate_token_attributes(uuid=users.items[0].uuid, username=users.items[0].username,

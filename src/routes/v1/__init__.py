@@ -7,3 +7,4 @@ from .refresh import Refresh
 from .register import Register
 from .schemas import *
 from .status import Status
+from .verify import Verify

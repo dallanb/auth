@@ -7,6 +7,7 @@ class RegisterFormSchema(Schema):
     password = fields.Str(required=True)
     display_name = fields.Str(required=True)
     country = fields.Str(required=True)
+    token = fields.Str(required=False)
 
 
 register_form_schema = RegisterFormSchema()
