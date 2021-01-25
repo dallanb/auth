@@ -19,3 +19,7 @@ class Auth:
             # if the user status is pending we should send a verification email
             elif data['status'] == 'pending':
                 self.verify_token_service.create(email=data['email'], status='active')
+        elif key == 'auth_updated':
+            self.logger.info('auth updated')
+            if data['status'] == 'active':
+                self.verify_token_service.deactivate_tokens(email=data['email'])
