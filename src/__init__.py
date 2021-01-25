@@ -42,6 +42,7 @@ if app.config['ENV'] != 'development':
     @app.errorhandler(Exception)
     @marshal_with(ErrorResponse.marshallable())
     def handle_error(error):
+        logging.error(error)
         return ErrorResponse(), 500
 
 
