@@ -3,6 +3,7 @@ from flask_restful import marshal_with
 
 from . import Base
 from .schemas import forgot_password_schema
+from ...common import TokenStatusEnum
 from ...common.response import MessageResponse
 from ...services import User, ResetPasswordToken
 
@@ -19,7 +20,7 @@ class ForgotPassword(Base):
         users = self.user.find(email=data['email'])
         if not users.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
-        if not users.items[0].status.name == 'active':
+        if not users.items[0].status == TokenStatusEnum['active']:
             self.throw_error(http_code=self.code.BAD_REQUEST)
         self.reset_password_token.deactivate_tokens(email=data['email'])
         _ = self.reset_password_token.create(**data, status='active')
