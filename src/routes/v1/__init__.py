@@ -1,4 +1,5 @@
 from .base import Base
+from .forgot_password import ForgotPassword
 from .invite import Invite
 from .login import Login
 from .logout import Logout

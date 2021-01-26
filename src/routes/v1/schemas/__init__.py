@@ -1,4 +1,6 @@
 from .access_token import dump_access_token_schema
+from .forgot_password import forgot_password_schema
+from .forgot_password_token import dump_forgot_password_token_schema
 from .invite import invite_schema
 from .invtite_token import dump_invite_token_schema
 from .login import login_form_schema

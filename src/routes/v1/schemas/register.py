@@ -2,7 +2,7 @@ from marshmallow import fields, Schema
 
 
 class RegisterFormSchema(Schema):
-    email = fields.Str(required=True)
+    email = fields.Email(required=True)
     username = fields.Str(required=True)
     password = fields.Str(required=True)
     display_name = fields.Str(required=True)
