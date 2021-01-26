@@ -17,7 +17,7 @@ class ResetPassword(Base):
     @marshal_with(MessageResponse.marshallable())
     def post(self):
         data = self.clean(schema=reset_password_schema, instance=request.get_json())
-        reset_password_tokens = self.reset_password_token.find(**data)
+        reset_password_tokens = self.reset_password_token.find(token=data['token'])
         if not reset_password_tokens.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
         if not reset_password_tokens.items[0].status == TokenStatusEnum['active']:
