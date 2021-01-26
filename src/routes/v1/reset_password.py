@@ -3,7 +3,7 @@ from flask_restful import marshal_with
 
 from . import Base
 from .schemas import reset_password_schema
-from ...common import TokenStatusEnum
+from ...common import TokenStatusEnum, UserStatusEnum
 from ...common.response import MessageResponse
 from ...services import User, ResetPasswordToken
 
@@ -27,7 +27,7 @@ class ResetPassword(Base):
         users = self.user.find(email=reset_password_token.email)
         if not users.total:
             self.throw_error(http_code=self.code.INTERNAL_SERVER_ERROR)
-        if not users.items[0].status == TokenStatusEnum['active']:
+        if not users.items[0].status == UserStatusEnum['active']:
             self.throw_error(http_code=self.code.UNAUTHORIZED, msg='User is not valid')
         self.user.apply(instance=users.items[0], password=data['password'])
         return MessageResponse(message=self.code.OK.phrase)
