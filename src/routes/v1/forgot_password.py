@@ -19,7 +19,7 @@ class ForgotPassword(Base):
         users = self.user.find(email=data['email'])
         if not users.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
-        if not users.status.name == 'active':
+        if not users.items[0].status.name == 'active':
             self.throw_error(http_code=self.code.BAD_REQUEST)
         self.reset_password_token.deactivate_tokens(email=data['email'])
         _ = self.reset_password_token.create(**data, status='active')
