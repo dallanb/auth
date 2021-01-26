@@ -6,6 +6,7 @@ from .logout import Logout
 from .ping import Ping
 from .refresh import Refresh
 from .register import Register
+from .reset_password import ResetPassword
 from .schemas import *
 from .status import Status
 from .verify import Verify
