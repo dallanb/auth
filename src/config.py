@@ -14,6 +14,7 @@ class Config(object):
     KONG_URL = os.getenv("KONG_URL")
     MAILER_URL = os.getenv("MAILER_URL")
     KAFKA_URL = os.getenv("KAFKA_URL")
+    CLIENT_URL = os.getenv("CLIENT_URL")
     KAFKA_TOPICS = os.getenv("KAFKA_TOPICS").split(",")
     REDIS_CONFIG = {
         'CACHE_TYPE': 'redis',

@@ -1,6 +1,7 @@
 import logging
 from http import HTTPStatus
 
+
 from .base import Base
 from ..common.mail import Mail
 from ..decorators import reset_password_token_notification
@@ -40,5 +41,5 @@ class ResetPasswordToken(Base):
 
     def send_reset_password(self, instance):
         subject = 'Tech Tapir Reset Password'
-        body = self.mail.generate_body('reset_password', reset_password=instance)
+        body = self.mail.generate_body('reset_password', reset_password=instance, config=self.config)
         self.mail.send(to=instance.email, subject=subject, html=body)

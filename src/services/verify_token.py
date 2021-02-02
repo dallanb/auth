@@ -40,5 +40,5 @@ class VerifyToken(Base):
 
     def send_verify(self, instance):
         subject = 'Tech Tapir Verification'
-        body = self.mail.generate_body('verify', verify=instance)
+        body = self.mail.generate_body('verify', verify=instance, config=self.config)
         self.mail.send(to=instance.email, subject=subject, html=body)
