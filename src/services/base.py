@@ -1,6 +1,7 @@
 import logging
 from ..common import Cache, DB, Event
 from ..common.error import ManualException
+from .. import app
 
 
 class Base:
@@ -9,6 +10,7 @@ class Base:
         # self.cache = Cache()
         self.event = Event()
         self.logger = logging.getLogger(__name__)
+        self.config = app.config
 
     # @cache.memoize(timeout=1000)
     def count(self, model):

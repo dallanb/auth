@@ -46,5 +46,5 @@ class InviteToken(Base):
 
     def send_invite(self, instance):
         subject = 'Tech Tapir Invitation'
-        body = self.mail.generate_body('invite', invite=instance)
+        body = self.mail.generate_body('invite', invite=instance, config=self.config)
         self.mail.send(to=instance.email, subject=subject, html=body)
