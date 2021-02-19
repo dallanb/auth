@@ -5,29 +5,29 @@ class MongoDB:
     def __init__(self):
         pass
 
-    @classmethod
+    @staticmethod
     # Methods
-    def init(cls, model, **kwargs):
+    def init(model, **kwargs):
         return model(**kwargs)
 
-    @classmethod
-    def count(cls, model):
+    @staticmethod
+    def count(model):
         return model.objects.count()
 
-    @classmethod
-    def save(cls, instance):
+    @staticmethod
+    def save(instance):
         instance.save()
         return instance
 
-    @classmethod
+    @staticmethod
     # TODO: Consider using dataclass instead of a named tuple
-    def find(cls, model, **kwargs):
+    def find(model, **kwargs):
         items = model.objects(**kwargs)
         total = items.count()
         Find = collections.namedtuple('Find', ['items', 'total'])
         return Find(items=items, total=total)
 
-    @classmethod
-    def destroy(cls, instance):
+    @staticmethod
+    def destroy(instance):
         instance.delete()
         return True

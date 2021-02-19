@@ -24,15 +24,12 @@ if [ "$MONGO_DATABASE" = "{mongo_database_name}" ]; then
   echo "MongoDB started"
 fi
 
+while ! nc -z zookeeper 2181; do
+  sleep 0.1
+done
+echo "Kafka started"
 
-if [ ! -d "migrations/versions" ]; then
-  echo "Directory migrations/versions does not exist."
-  flask db init --directory=migrations
-  sed -i '/import sqlalchemy as sa/a import sqlalchemy_utils' migrations/script.py.mako
-fi
+manage init
+manage load
 
-flask db migrate --directory=migrations
-flask db upgrade --directory=migrations
-
-
-manage run -h 0.0.0.0
+gunicorn --bind 0.0.0.0:5000 manage:app
