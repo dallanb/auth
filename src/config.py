@@ -9,6 +9,7 @@ class Config(object):
     TESTING = os.getenv("TESTING", False)
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite://")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = os.getenv("SECRET_KEY")
     KAFKA_URL = os.getenv("KAFKA_URL")
     KAFKA_TOPICS = os.getenv("KAFKA_TOPICS").split(",")
     MONGODB_SETTINGS = {
