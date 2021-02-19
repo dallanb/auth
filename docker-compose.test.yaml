@@ -3,34 +3,23 @@ version: "3.2"
 services:
   app:
     container_name: app
-    build:
-      context: .
-      dockerfile: ./build/Dockerfile
+    image: dallanbhatti/app:test
     restart: on-failure
-    volumes:
-      - ./migrations:/home/app/migrations
-      - ./bin:/home/app/bin
-      - ./tests:/home/app/tests
-      - ./seeds:/home/app/seeds
-      - ./src:/home/app/src
-      - ./statics:/home/app/statics
-      - ./manage.py:/home/app/manage.py
-      - ./setup.py:/home/app/setup.py
     env_file:
-      - env/.env.app
+      - env/test/.env.app
     healthcheck:
       test: curl --fail -s app:5000/ping || exit 1
-      interval: 60s
+      interval: 10s
       timeout: 5s
       retries: 5
     depends_on:
       - cache
       - db
-      - mongodb
       - kafka
+      - mongodb
       - zookeeper
     networks:
-      - app-net
+      - test-net
   cache:
     container_name: cache
     image: redis:6
@@ -38,28 +27,28 @@ services:
     volumes:
       - cache_data:/var/libs/redis
     env_file:
-      - env/.env.cache
+      - env/test/.env.cache
     healthcheck:
       test: [ "CMD", "redis-cli","ping" ]
       interval: 30s
       timeout: 10s
       retries: 5
     networks:
-      - app-net
+      - test-net
   db:
     container_name: db
     image: postgres:9.6
     volumes:
       - db_data:/var/lib/postgresql/data/
     env_file:
-      - env/.env.db
+      - env/test/.env.db
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U web" ]
+      test: [ "CMD-SHELL", "pg_isready -U contest" ]
       interval: 10s
       timeout: 5s
       retries: 20
     networks:
-      - app-net
+      - test-net
   kafka:
     container_name: kafka
     image: wurstmeister/kafka:latest
@@ -67,11 +56,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
-      - env/.env.kafka
+      - env/test/.env.kafka
     depends_on:
       - zookeeper
     networks:
-      - app-net
+      - test-net
   mongodb:
     container_name: mongodb
     image: mongo:3.6
@@ -81,19 +70,17 @@ services:
     #      - build/bin/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
     #      - build/bin/reset-mongo.sh:/bin/reset-mongo.sh
     env_file:
-      - env/.env.mongodb
+      - env/test/.env.mongodb
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo mongodb:27017/test --quiet
       interval: 10s
       timeout: 5s
       retries: 20
     networks:
-      - app-net
+      - test-net
   web:
     container_name: web
-    build:
-      context: ./web
-      dockerfile: ./web/build/Dockerfile
+    image: dallanbhatti/web:test
     restart: on-failure
     volumes:
       - statics/.:/usr/share/nginx/
@@ -102,15 +89,15 @@ services:
     depends_on:
       - app
     networks:
-      - app-net
+      - test-net
   zookeeper:
     container_name: zookeeper
     image: wurstmeister/zookeeper:latest
     restart: on-failure
     env_file:
-      - env/.env.zookeeper
+      - env/test/.env.zookeeper
     networks:
-      - app-net
+      - test-net
 volumes:
   db_data:
   cache_data:
@@ -118,5 +105,5 @@ volumes:
   mongodb_home:
   statics:
 networks:
-  app-net:
+  test-net:
     driver: bridge
