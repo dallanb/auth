@@ -4,8 +4,8 @@
 
 pip install -e .
 
-if [ "$DATABASE" = "{database_name}" ]; then
-  echo "Waiting for {database_name}..."
+if [ "$DATABASE" = "app" ]; then
+  echo "Waiting for app..."
 
   while ! nc -z $SQL_HOST $SQL_PORT; do
     sleep 0.1
@@ -14,8 +14,8 @@ if [ "$DATABASE" = "{database_name}" ]; then
   echo "PostgreSQL started"
 fi
 
-if [ "$MONGO_DATABASE" = "{mongo_database_name}" ]; then
-  echo "Waiting for {mongo_database_name}..."
+if [ "$MONGO_DATABASE" = "app" ]; then
+  echo "Waiting for app..."
 
   while ! nc -z $MONGO_HOST $MONGO_PORT; do
     sleep 0.1
