@@ -89,20 +89,6 @@ services:
       retries: 20
     networks:
       - app-net
-  web:
-    container_name: web
-    build:
-      context: ./web
-      dockerfile: ./web/build/Dockerfile
-    restart: on-failure
-    volumes:
-      - statics/.:/usr/share/nginx/
-    ports:
-      - 80:80
-    depends_on:
-      - app
-    networks:
-      - app-net
   zookeeper:
     container_name: zookeeper
     image: wurstmeister/zookeeper:latest
