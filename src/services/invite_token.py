@@ -15,12 +15,12 @@ class InviteToken(Base):
         self.mail = Mail()
 
     def find(self, **kwargs):
-        return Base.find(self, model=self.invite_token_model, **kwargs)
+        return self._find(model=self.invite_token_model, **kwargs)
 
     @invite_token_notification(operation='create')
     def create(self, **kwargs):
-        invite_token = self.init(model=self.invite_token_model, **kwargs)
-        return self.save(instance=invite_token)
+        invite_token = self._init(model=self.invite_token_model, **kwargs)
+        return self._save(instance=invite_token)
 
     def update(self, uuid, **kwargs):
         invite_tokens = self.find(uuid=uuid)
@@ -29,8 +29,8 @@ class InviteToken(Base):
         return self.apply(instance=invite_tokens.items[0], **kwargs)
 
     def apply(self, instance, **kwargs):
-        invite_token = self.assign_attr(instance=instance, attr=kwargs)
-        return self.save(instance=invite_token)
+        invite_token = self._assign_attr(instance=instance, attr=kwargs)
+        return self._save(instance=invite_token)
 
     def confirm_token(self, token, email):
         invite_tokens = self.find(token=token, email=email)

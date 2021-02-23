@@ -16,11 +16,11 @@ class RefreshToken(Base):
         self.mail = Mail()
 
     def find(self, **kwargs):
-        return Base.find(self, model=self.refresh_token_model, **kwargs)
+        return self._find(model=self.refresh_token_model, **kwargs)
 
     def create(self, **kwargs):
-        refresh_token = self.init(model=self.refresh_token_model, **kwargs)
-        return self.save(instance=refresh_token)
+        refresh_token = self._init(model=self.refresh_token_model, **kwargs)
+        return self._save(instance=refresh_token)
 
     def update(self, uuid, **kwargs):
         refresh_tokens = self.find(uuid=uuid)
@@ -29,8 +29,8 @@ class RefreshToken(Base):
         return self.apply(instance=refresh_tokens.items[0], **kwargs)
 
     def apply(self, instance, **kwargs):
-        refresh_token = self.assign_attr(instance=instance, attr=kwargs)
-        return self.save(instance=refresh_token)
+        refresh_token = self._assign_attr(instance=instance, attr=kwargs)
+        return self._save(instance=refresh_token)
 
     @staticmethod
     def generate_token_attributes(uuid, username, expiry):

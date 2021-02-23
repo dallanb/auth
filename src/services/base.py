@@ -2,6 +2,7 @@ import logging
 from http import HTTPStatus
 from sqlalchemy.exc import DataError, IntegrityError, StatementError
 
+from .. import app
 from ..common import Cache, DB, Event
 from ..common.error import ManualException
 
@@ -12,6 +13,7 @@ class Base:
         self.cache = Cache()
         self.event = Event()
         self.logger = logging.getLogger(__name__)
+        self.config = app.config
 
     # @cache.memoize(timeout=1000)
     def _count(self, model):
