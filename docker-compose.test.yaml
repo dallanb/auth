@@ -80,7 +80,7 @@ services:
       - test-net
   web:
     container_name: web
-    image: dallanbhatti/web:test
+    image: dallanbhatti/app_proxy:test
     restart: on-failure
     volumes:
       - statics/.:/usr/share/nginx/

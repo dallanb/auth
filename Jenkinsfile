@@ -1,7 +1,6 @@
 pipeline {
     environment {
         githubCredential = 'github'
-        githubUser='dallanbhatti'
         container = 'app'
         registry = 'dallanbhatti/app'
         registryCredential = 'dockerhub'
@@ -32,7 +31,7 @@ pipeline {
                     if (env.BRANCH_NAME == 'qaw') {
                         try {
                             sh "docker build -f build/Dockerfile.test --cache-from $dockerImageName -t $registry:test ."
-                            sh "docker build -f web/build/Dockerfile.test -t ${githubUser}/web:test web"
+                            sh "docker build -f proxy/build/Dockerfile.test -t ${registry}_proxy:test proxy"
                             sh "docker-compose -f docker-compose.test.yaml up -d"
                             sh "bash bin/test.sh"
                             sh "docker cp app:/home/app/tests.xml ."
@@ -40,7 +39,7 @@ pipeline {
                         } finally {
                             sh "docker-compose -f docker-compose.test.yaml down -v"
                             sh "docker image rm $registry:test"
-                            sh "docker image rm ${githubUser}/web:test"
+                            sh "docker image rm ${registry}_proxy:test"
                         }
                     }
                 }
