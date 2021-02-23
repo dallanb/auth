@@ -3,7 +3,7 @@ from ..base import Base
 from ....common import MessageResponse
 
 
-class PingAPI(Base):
+class Ping(Base):
     def __init__(self):
         Base.__init__(self)
 

@@ -1,6 +1,6 @@
 import pytest
 
-from bin import init_contest_status, init_participant_status
+from bin import init_user_status, init_user_role, init_token_status
 from src import db, common
 
 
@@ -15,4 +15,6 @@ def reset_db():
     db.create_all()
     db.session.commit()
     # load
-    # Any Load operations
+    init_user_status(status_enums=common.UserStatusEnum)
+    init_user_role(role_enums=common.UserRoleEnum)
+    init_token_status(status_enums=common.TokenStatusEnum)

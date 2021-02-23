@@ -1,1 +1,1 @@
-from .api import PingAPI
+from .api import Ping
