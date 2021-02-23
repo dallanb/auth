@@ -9,7 +9,6 @@ cli = FlaskGroup(app)
 
 
 def full_load():
-    os.system('flask seed run')
     init_user_status(status_enums=common.UserStatusEnum)
     init_user_role(role_enums=common.UserRoleEnum)
     init_token_status(status_enums=common.TokenStatusEnum)

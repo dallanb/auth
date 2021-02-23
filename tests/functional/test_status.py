@@ -1,4 +1,4 @@
-from huncho.services.auth.src import app
+from src import app
 
 
 def test_status():
