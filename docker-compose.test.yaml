@@ -78,18 +78,6 @@ services:
       retries: 20
     networks:
       - test-net
-  web:
-    container_name: web
-    image: dallanbhatti/app_proxy:test
-    restart: on-failure
-    volumes:
-      - statics/.:/usr/share/nginx/
-    ports:
-      - 80:80
-    depends_on:
-      - app
-    networks:
-      - test-net
   zookeeper:
     container_name: zookeeper
     image: wurstmeister/zookeeper:latest
