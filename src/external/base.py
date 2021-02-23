@@ -1,7 +1,5 @@
-import logging
-
 import requests
-from flask import g
+import logging
 
 
 class Base:
@@ -11,9 +9,9 @@ class Base:
     @staticmethod
     def get(**kwargs):
         url = kwargs.get('url', None)
-        payload = kwargs.get('payload', None)
         headers = kwargs.get('headers', None)
-        return requests.get(url, payload, headers)
+        params = kwargs.get('params', None)
+        return requests.get(url, headers=headers, params=params)
 
     @staticmethod
     def post(**kwargs):

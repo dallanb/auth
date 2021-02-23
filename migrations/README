@@ -2,6 +2,6 @@ Generic single-database configuration.
 
 ## Migration Workflow
 
-1. `> flask db init --directory=migrations/test`
-2. `> flask db migrate --directory=migrations/test`
-3. `> flask db upgrade --directory=migrations/test`
+1. `> flask db init --directory=migrations/dev`
+2. `> flask db migrate --directory=migrations/dev`
+3. `> flask db upgrade --directory=migrations/dev`

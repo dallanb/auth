@@ -12,44 +12,66 @@ services:
   auth:
     container_name: auth
     build:
-      context: ${HUNCHO_DIR}/services/auth
-      dockerfile: ${HUNCHO_DIR}/services/auth/build/Dockerfile
+      context: .
+      dockerfile: ./build/Dockerfile
     restart: on-failure
     volumes:
-      - ${HUNCHO_DIR}/services/auth/migrations:/home/app/migrations
-      - ${HUNCHO_DIR}/services/auth/bin:/home/app/bin
-      - ${HUNCHO_DIR}/services/auth/tests:/home/app/tests
-      - ${HUNCHO_DIR}/services/auth/src:/home/app/src
-      - ${HUNCHO_DIR}/services/auth/statics:/home/app/statics
-      - ${HUNCHO_DIR}/services/auth/manage.py:/home/app/manage.py
-      - ${HUNCHO_DIR}/services/auth/setup.py:/home/app/setup.py
+      - ./migrations:/home/app/migrations
+      - ./bin:/home/app/bin
+      - ./tests:/home/app/tests
+      - ./src:/home/app/src
+      - ./statics:/home/app/statics
+      - ./manage.py:/home/app/manage.py
+      - ./setup.py:/home/app/setup.py
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.auth
+      - env/.env.auth
     healthcheck:
       test: curl --fail -s auth:5000/ping || exit 1
       interval: 5s
       timeout: 5s
       retries: 5
-    ports:
-      - 20007:5000
     depends_on:
       - auth_db
+      - auth_kafka
+      - auth_zookeeper
     networks:
       - app-net
   auth_db:
     container_name: auth_db
     image: postgres:9.6
     volumes:
-      - ${HUNCHO_DIR}/data/dev/auth_db/data:/var/lib/postgresql/data/
+      - db_data:/var/lib/postgresql/data/
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.auth_db
+      - env/.env.auth_db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U auth"]
+      test: [ "CMD-SHELL", "pg_isready -U auth" ]
       interval: 10s
       timeout: 5s
       retries: 20
     networks:
       - app-net
+  auth_kafka:
+    container_name: auth_kafka
+    image: wurstmeister/kafka:latest
+    restart: on-failure
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - env/.env.auth_kafka
+    depends_on:
+      - auth_zookeeper
+    networks:
+      - app-net
+  auth_zookeeper:
+    container_name: auth_zookeeper
+    image: wurstmeister/zookeeper:latest
+    restart: on-failure
+    env_file:
+      - env/.env.auth_zookeeper
+    networks:
+      - app-net
+volumes:
+  db_data:
 networks:
   app-net:
     driver: bridge
