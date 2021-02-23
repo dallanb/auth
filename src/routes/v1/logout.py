@@ -26,8 +26,7 @@ class Logout(Base):
             self.throw_error(http_code=self.code.NOT_FOUND)
         attr = self.access_token.generate_deactivate_token_attributes(username=users.items[0].username,
                                                                       kong_jwt_id=access_tokens.items[0].kong_jwt_id)
-        access_token = self.access_token.assign_attr(instance=access_tokens.items[0], attr=attr)
-        _ = self.access_token.save(instance=access_token)
+        _ = self.access_token.apply(instance=access_tokens.items[0], **attr)
 
         _ = self.refresh_token.update(uuid=access_tokens.items[0].refresh_token_uuid, status='inactive')
 
