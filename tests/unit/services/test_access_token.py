@@ -269,3 +269,40 @@ def test_access_token_apply_w_bad_field(pause_notification):
         _ = access_token_service.apply(instance=pytest.access_token, junk='junk')
     except ManualException as ex:
         assert ex.code == 400
+
+
+###########
+# Misc
+###########
+
+def test_access_token_generate_token_attributes(reset_db, pause_notification, mock_kong_create_jwt_credential,
+                                                seed_user):
+    """
+    GIVEN 0 access_token instance in the database
+    WHEN the generate_token_attributes method is called
+    THEN it should return a dictionary of token attributes
+    """
+    access_expiry = generate_expiry(app.config['ACCESS_EXP'])
+    attr = access_token_service.generate_token_attributes(uuid=pytest.user.uuid, username=pytest.username,
+                                                          expiry=access_expiry)
+    assert 'token' in attr
+    assert 'kong_jwt_id' in attr
+    assert 'status' in attr
+    assert 'user_uuid' in attr
+
+
+def test_access_token_generate_deactivate_token_attributes(reset_db, pause_notification,
+                                                           mock_kong_create_jwt_credential,
+                                                           mock_kong_destroy_jwt_credential, seed_user):
+    """
+    GIVEN 0 access_token instance in the database
+    WHEN the generate_deactivate_token_attributes method is called
+    THEN it should return a dictionary of deactivated token attributes
+    """
+    access_expiry = generate_expiry(app.config['ACCESS_EXP'])
+    attr = access_token_service.generate_token_attributes(uuid=pytest.user.uuid, username=pytest.username,
+                                                          expiry=access_expiry)
+    attr = access_token_service.generate_deactivate_token_attributes(username=pytest.username,
+                                                                     kong_jwt_id=attr['kong_jwt_id'])
+    assert 'status' in attr
+    assert 'kong_jwt_id' in attr
