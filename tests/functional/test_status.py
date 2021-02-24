@@ -5,7 +5,7 @@ import pytest
 from src import app
 
 
-def test_status(reset_db, pause_notification, seed_user, auth):
+def test_status(reset_db, pause_notification, mock_kong_create_jwt_credential, seed_user, auth):
     """
     GIVEN a Flask application configured for testing
     WHEN the GET endpoint 'status' is requested
@@ -22,7 +22,7 @@ def test_status(reset_db, pause_notification, seed_user, auth):
     assert response['data']['expiry'] is not None
 
 
-def test_status_fail(reset_db, pause_notification, seed_user, auth):
+def test_status_fail(reset_db, pause_notification, mock_kong_create_jwt_credential, seed_user, auth):
     """
     GIVEN a Flask application configured for testing
     WHEN the GET endpoint 'status' is requested

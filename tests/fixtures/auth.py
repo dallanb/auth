@@ -1,12 +1,12 @@
 import json
-import logging
+
 import pytest
 
 from src import app
 
 
 @pytest.fixture
-def auth(pause_notification):
+def auth(pause_notification, mock_kong_create_jwt_credential):
     payload = {
         'email': pytest.email,
         'password': pytest.password,

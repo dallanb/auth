@@ -5,7 +5,7 @@ import pytest
 from src import app
 
 
-def test_refresh(reset_db, pause_notification, seed_user, auth):
+def test_refresh(reset_db, pause_notification, mock_kong_create_jwt_credential, seed_user, auth):
     """
     GIVEN a Flask application configured for testing
     WHEN the GET endpoint 'refresh' is requested

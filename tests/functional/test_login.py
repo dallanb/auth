@@ -3,7 +3,7 @@ import pytest
 from src import app
 
 
-def test_login(reset_db, pause_notification, seed_user):
+def test_login(reset_db, pause_notification, mock_kong_create_jwt_credential, seed_user):
     """
     GIVEN a Flask application configured for testing
     WHEN the POST endpoint 'login' is requested
@@ -21,7 +21,7 @@ def test_login(reset_db, pause_notification, seed_user):
     assert response.status_code == 200
 
 
-def test_register_fail(reset_db, pause_notification, seed_user):
+def test_login_fail(reset_db, pause_notification, mock_kong_create_jwt_credential, seed_user):
     """
     GIVEN a Flask application configured for testing
     WHEN the POST endpoint 'login' is requested
