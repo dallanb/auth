@@ -8,3 +8,4 @@ from .pause_notification import pause_notification
 from .reset_db import reset_db
 from .seed_reset_password_token import seed_reset_password_token
 from .seed_user import seed_user
+from .seed_verify_token import seed_verify_token
