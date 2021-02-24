@@ -55,7 +55,7 @@ def test_user_find_by_email():
     assert user.email == email
 
 
-def test_user_find_w_pagination(pause_notification):
+def test_user_find_w_pagination(pause_notification, mock_kong_create_consumer):
     """
     GIVEN 2 user instance in the database
     WHEN the find method is called with valid pagination
@@ -140,7 +140,7 @@ def test_user_find_by_non_existent_expand():
 ###########
 # Create
 ###########
-def test_user_create(reset_db, pause_notification):
+def test_user_create(reset_db, pause_notification, mock_kong_create_consumer):
     """
     GIVEN 0 user instance in the database
     WHEN the create method is called

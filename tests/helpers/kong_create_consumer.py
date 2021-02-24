@@ -1,2 +1,2 @@
-def kong_create_consumer(self, uuid, username):
+def kong_create_consumer(uuid, username):
     return True
