@@ -176,7 +176,7 @@ def test_refresh_token_create_w_bad_field(pause_notification, mock_kong_create_j
         access_expiry = generate_expiry(app.config['REFRESH_EXP'])
         attr = refresh_token_service.generate_token_attributes(uuid=pytest.user.uuid, username=pytest.user.username,
                                                                expiry=access_expiry)
-        _ = refresh_token_service.create(**attr, refresh_token=pytest.refresh_token, junk='junk')
+        _ = refresh_token_service.create(**attr, junk='junk')
     except ManualException as ex:
         assert ex.code == 500
 
