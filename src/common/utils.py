@@ -46,7 +46,7 @@ def encode_token(**kwargs):
 
 def decode_token(token):
     try:
-        return jwt.decode(token, app.config.get('SECRET_KEY'))
+        return jwt.decode(token, app.config.get('SECRET_KEY'), algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
         raise ValueError('Signature expired. Please log in again.', 'destroy_token')
     except jwt.InvalidTokenError:

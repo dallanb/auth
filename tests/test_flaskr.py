@@ -3,7 +3,8 @@ import tempfile
 
 import pytest
 
-from huncho.services.auth import src
+import src
+from manage import clear_db, create_db, full_load
 
 
 @pytest.fixture
@@ -13,7 +14,9 @@ def client():
 
     with src.app.test_client() as client:
         with src.app.app_context():
-            src.init_db()
+            clear_db()
+            create_db()
+            full_load()
         yield client
 
     os.close(db_fd)
