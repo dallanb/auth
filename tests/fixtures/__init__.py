@@ -6,6 +6,7 @@ from .mock_user_notification import mock_user_notification_create, mock_user_not
 from .mock_verify_token_notification import mock_verify_token_notification_create
 from .pause_notification import pause_notification
 from .reset_db import reset_db
+from .seed_invite_token import seed_invite_token
 from .seed_reset_password_token import seed_reset_password_token
 from .seed_user import seed_user
 from .seed_verify_token import seed_verify_token
