@@ -15,11 +15,11 @@ class AccessToken(Base):
         self.mail = Mail()
 
     def find(self, **kwargs):
-        return Base.find(self, model=self.access_token_model, **kwargs)
+        return self._find(model=self.access_token_model, **kwargs)
 
     def create(self, **kwargs):
-        access_token = self.init(model=self.access_token_model, **kwargs)
-        return self.save(instance=access_token)
+        access_token = self._init(model=self.access_token_model, **kwargs)
+        return self._save(instance=access_token)
 
     def update(self, uuid, **kwargs):
         access_tokens = self.find(uuid=uuid)
@@ -28,8 +28,8 @@ class AccessToken(Base):
         return self.apply(instance=access_tokens.items[0], **kwargs)
 
     def apply(self, instance, **kwargs):
-        access_token = self.assign_attr(instance=instance, attr=kwargs)
-        return self.save(instance=access_token)
+        access_token = self._assign_attr(instance=instance, attr=kwargs)
+        return self._save(instance=access_token)
 
     def generate_token_attributes(self, uuid, username, expiry):
         key = str(generate_uuid())

@@ -2,13 +2,14 @@ from ..libs import Producer
 
 
 class Event:
-    @classmethod
-    def _generate_endpoint(cls, topic, value):
-        return {
-            'endpoint': f"/{topic}/{str(value)}"
-        }
+    def __init__(self):
+        pass
 
-    @classmethod
-    def send(cls, topic, value, key):
+    @staticmethod
+    def generate_endpoint(topic, value):
+        return f"/{topic}/{str(value)}"
+
+    @staticmethod
+    def send(topic, value, key):
         producer = Producer(topic=topic, value=value, key=key)
         producer.start()
