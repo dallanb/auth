@@ -1,7 +1,7 @@
 from functools import wraps
 
 from src import services
-from src.notifications import invite_created
+from src.notifications import invite_token_created
 
 
 class invite_token_notification:
@@ -21,5 +21,5 @@ class invite_token_notification:
 
     @staticmethod
     def create(new_instance):
-        invite_created.from_data(invite_token=new_instance).notify()
+        invite_token_created.from_data(invite_token=new_instance).notify()
         services.InviteToken().send_invite(instance=new_instance)
