@@ -5,7 +5,8 @@ import pytest
 from src import app
 
 
-def test_logout(reset_db, pause_notification, seed_user, auth):
+def test_logout(reset_db, pause_notification, mock_kong_create_jwt_credential, mock_kong_destroy_jwt_credential,
+                seed_user, auth):
     """
     GIVEN a Flask application configured for testing
     WHEN the POST endpoint 'logout' is requested
@@ -21,7 +22,7 @@ def test_logout(reset_db, pause_notification, seed_user, auth):
     assert response['msg'] == "OK"
 
 
-def test_logout_fail(reset_db, pause_notification, seed_user, auth):
+def test_logout_fail(reset_db, pause_notification, mock_kong_create_jwt_credential, seed_user, auth):
     """
     GIVEN a Flask application configured for testing
     WHEN the POST endpoint 'logout' is requested

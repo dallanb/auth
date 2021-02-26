@@ -3,8 +3,8 @@
 . ~/.bashrc
 pip install -e .
 
-if [ "$DATABASE" = "auth" ]; then
-  echo "Waiting for auth..."
+if [ "$DATABASE" = "app" ]; then
+  echo "Waiting for app..."
 
   while ! nc -z $SQL_HOST $SQL_PORT; do
     sleep 0.1

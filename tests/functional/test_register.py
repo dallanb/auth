@@ -3,7 +3,7 @@ import pytest
 from src import app
 
 
-def test_register(reset_db, pause_notification):
+def test_register(reset_db, pause_notification, mock_kong_create_consumer):
     """
     GIVEN a Flask application configured for testing
     WHEN the POST endpoint 'register' is requested

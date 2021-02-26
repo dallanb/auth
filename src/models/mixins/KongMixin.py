@@ -1,4 +1,5 @@
 from sqlalchemy.event import listen
+
 from ...external import Kong
 
 

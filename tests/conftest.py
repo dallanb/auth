@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 
 from .fixtures import *
@@ -20,3 +22,5 @@ def pytest_configure(config):
     pytest.password = '123'
     pytest.display_name = 'Dallan Bhatti'
     pytest.country = 'CA'
+    pytest.access_token_token = uuid4()
+    pytest.kong_jwt_id = uuid4()
