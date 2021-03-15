@@ -1,6 +1,6 @@
 import logging
 from http import HTTPStatus
-from sqlalchemy.exc import DataError, IntegrityError, StatementError
+from sqlalchemy.exc import DataError, IntegrityError, StatementError, InvalidRequestError
 
 from .. import app
 from ..common import Cache, DB, Event
@@ -54,6 +54,17 @@ class Base:
             self.error(code=HTTPStatus.INTERNAL_SERVER_ERROR)
         except KeyError:
             self.logger.error(f'add error - KeyError')
+            self.db.rollback()
+            self.error(code=HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    def _update(self, query, **kwargs):
+        try:
+            update = query.update({**kwargs})
+            self._commit()
+            return update
+        except InvalidRequestError as ex:
+            self.logger.error(f'update error - InvalidRequestError')
+            self.logger.error(ex)
             self.db.rollback()
             self.error(code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
