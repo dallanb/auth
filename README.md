@@ -1,4 +1,14 @@
-# flask-sdk
-FLASK SDK
+# auth 
+AUTH Microservice
 
-https://medium.com/fuzzy-code/git-push-to-new-repo-from-existing-repos-branch-acb8bef3f7be
+
+### API
+#### Documentation
+[Requests](https://documenter.getpostman.com/view/11912430/Tz5tWusT)
+
+### Diagrams
+#### DB
+[Entity Relationship Diagram](https://drive.google.com/file/d/1qaXC3nH9tOm1ll4XVzTmE4hhTuPUQISN/view?usp=sharing)
+
+#### Events
+[Events Diagram](https://drive.google.com/file/d/1aYkUvdqUH23vb0-5Q29jWBR7QdKv2CNs/view?usp=sharing)
