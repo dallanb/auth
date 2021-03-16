@@ -18,12 +18,12 @@ build-prod:
 deploy:
 	@docker-compose \
 					-f docker-compose.yaml \
-					up --build --remove-orphans
+					up --build --remove-orphans -d
 
 deploy-qaw:
 	@docker-compose \
 					-f docker-compose.qaw.yaml \
-					up --build --remove-orphans
+					up --build --remove-orphans -d
 
 deploy-prod:
 	@docker-compose \
@@ -34,17 +34,17 @@ deploy-prod:
 down:
 	@docker-compose \
 					-f docker-compose.yaml \
-					down --remove-orphans
+					down --remove-orphans -v
 
 down-qaw:
 	@docker-compose \
 					-f docker-compose.qaw.yaml \
-					down --remove-orphans
+					down --remove-orphans -v
 
 down-prod:
 	@docker-compose \
 					-f docker-compose.prod.yaml \
-					down --rmi all --remove-orphans
+					down --rmi all --remove-orphans -v
 
 refresh-db:
 	@sh build/bin/refresh-db.sh

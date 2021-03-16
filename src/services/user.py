@@ -15,12 +15,12 @@ class User(Base):
         self.mail = Mail()
 
     def find(self, **kwargs):
-        return Base.find(self, model=self.user_model, **kwargs)
+        return self._find(model=self.user_model, **kwargs)
 
     @user_notification(operation='create')
     def create(self, **kwargs):
-        user = self.init(model=self.user_model, **kwargs)
-        return self.save(instance=user)
+        user = self._init(model=self.user_model, **kwargs)
+        return self._save(instance=user)
 
     def update(self, uuid, **kwargs):
         users = self.find(uuid=uuid)
@@ -30,5 +30,5 @@ class User(Base):
 
     @user_notification(operation='update')
     def apply(self, instance, **kwargs):
-        user = self.assign_attr(instance=instance, attr=kwargs)
-        return self.save(instance=user)
+        user = self._assign_attr(instance=instance, attr=kwargs)
+        return self._save(instance=user)

@@ -15,12 +15,12 @@ class VerifyToken(Base):
         self.mail = Mail()
 
     def find(self, **kwargs):
-        return Base.find(self, model=self.verify_token_model, **kwargs)
+        return self._find(model=self.verify_token_model, **kwargs)
 
     @verify_token_notification(operation='create')
     def create(self, **kwargs):
-        verify_token = self.init(model=self.verify_token_model, **kwargs)
-        return self.save(instance=verify_token)
+        verify_token = self._init(model=self.verify_token_model, **kwargs)
+        return self._save(instance=verify_token)
 
     def update(self, uuid, **kwargs):
         verify_tokens = self.find(uuid=uuid)
@@ -29,8 +29,8 @@ class VerifyToken(Base):
         return self.apply(instance=verify_tokens.items[0], **kwargs)
 
     def apply(self, instance, **kwargs):
-        verify_token = self.assign_attr(instance=instance, attr=kwargs)
-        return self.save(instance=verify_token)
+        verify_token = self._assign_attr(instance=instance, attr=kwargs)
+        return self._save(instance=verify_token)
 
     def deactivate_tokens(self, email):
         self.db.clean_query(model=self.verify_token_model, email=email, status='active').update(

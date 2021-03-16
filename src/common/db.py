@@ -11,8 +11,8 @@ from ..common.error import *
 
 class DB:
     # Helpers
-    @classmethod  # TODO: refactor the entire query builder like i have for applying sort_by so that it can be used outside of this function
-    def _query_builder(cls, model, filters=[], expand=[], include=[], sort_by=None, limit=None,
+
+    def _query_builder(self, model, filters, expand=None, include=None, sort_by=None, limit=None,
                        offset=None):
         query = db.session.query(model)
         for logic_operator, filter_arr in filters:
@@ -47,32 +47,22 @@ class DB:
                 query = query.filter(or_(*criterion))
             if logic_operator == 'and':
                 query = query.filter(and_(*criterion))
-        for i, k in enumerate(expand):
-            tables = k.split('.')
-            options = db.lazyload(getattr(model, tables[0]))
-            for j, table in enumerate(tables):
-                if j > 0:
-                    nested_class = cls._get_class_by_tablename(tables[j - 1])
-                    options = options.lazyload(getattr(nested_class, table))
-            query = query.options(options)
-        for i, k in enumerate(include):
-            tables = k.split('.')
-            options = db.joinedload(getattr(model, tables[0]))
-            for j, table in enumerate(tables):
-                if j > 0:
-                    nested_class = cls._get_class_by_tablename(cls._singularize(tables[j - 1]))
-                    options = options.joinedload(getattr(nested_class, table))
-            query = query.options(options)
-        if sort_by is not None:
-            query = cls.apply_query_order_by(model=model, query=query, sort_by=sort_by)
+            for i, k in enumerate(expand):
+                options = db.joinedload(getattr(model, k))
+                query = query.options(options)
+            for i, k in enumerate(include):
+                options = db.joinedload(getattr(model, k))
+                query = query.options(options)
+            if sort_by is not None:
+                query = self.apply_query_order_by(model=model, query=query, sort_by=sort_by)
         if limit is not None:
             query = query.limit(limit)
         if offset is not None:
             query = query.offset(offset)
         return query
 
-    @classmethod
-    def apply_query_order_by(cls, model, query, sort_by):
+    @staticmethod
+    def apply_query_order_by(model, query, sort_by):
         direction = re.search('[.](a|de)sc', sort_by)
         if direction is not None:
             direction = direction.group()
@@ -85,33 +75,33 @@ class DB:
             query = query.order_by(getattr(model, key).asc())
         return query
 
-    @classmethod
-    def _get_class_by_tablename(cls, tablename):
+    @staticmethod
+    def _get_class_by_tablename(tablename):
         for c in db.Model._decl_class_registry.values():
             if hasattr(c, '__tablename__') and c.__tablename__ == tablename:
                 return c
 
-    @classmethod
-    def _is_pending(cls, instance):
+    @staticmethod
+    def _is_pending(instance):
         inspection = inspect(instance)
         return inspection.pending
 
-    @classmethod
-    def _get_cache_key(cls, model, query):
+    @staticmethod
+    def _get_cache_key(model, query):
         return f"{model.__tablename__}:{str(query)}"
 
-    @classmethod
-    def _pluralize(cls, tablename):
+    @staticmethod
+    def _pluralize(tablename):
         p = inflect.engine()
         return p.plural_noun(tablename)
 
-    @classmethod
-    def _singularize(cls, tablename):
+    @staticmethod
+    def _singularize(tablename):
         p = inflect.engine()
         return p.singular_noun(tablename)
 
-    @classmethod
-    def _generate_equal_filter(cls, model, **kwargs):
+    @staticmethod
+    def _generate_equal_filter(model, **kwargs):
         equal_filter = []
         for k, v in kwargs.items():
             equal_filter.append(
@@ -124,11 +114,10 @@ class DB:
             )
         return equal_filter
 
-    @classmethod
-    def _generate_nested_filter(cls, nested):
+    def _generate_nested_filter(self, nested):
         nested_filter = []
         for k, v in nested.items():
-            nested_class = cls._get_class_by_tablename(k)
+            nested_class = self._get_class_by_tablename(k)
             for nested_k, nested_v in v.items():
                 nested_filter.append(
                     (
@@ -140,8 +129,8 @@ class DB:
                 )
         return nested_filter
 
-    @classmethod
-    def _generate_in_filter(cls, model, within):
+    @staticmethod
+    def _generate_in_filter(model, within):
         in_filter = []
         for k, v in within.items():
             in_filter.append(
@@ -154,8 +143,8 @@ class DB:
             )
         return in_filter
 
-    @classmethod
-    def _generate_has_key_filter(cls, model, has_key):
+    @staticmethod
+    def _generate_has_key_filter(model, has_key):
         has_key_filter = []
         for k, v in has_key.items():
             has_key_filter.append(
@@ -169,35 +158,39 @@ class DB:
 
         return has_key_filter
 
-    @classmethod
-    def _generate_filters(cls, model, nested=None, within=None, has_key=None, **kwargs):
+    def _generate_filters(self, model, nested=None, within=None, has_key=None, **kwargs):
         filters = []
 
         if len(kwargs):
-            filters.extend(cls._generate_equal_filter(model=model, **kwargs))
+            filters.extend(self._generate_equal_filter(model=model, **kwargs))
 
         if nested:
-            filters.extend(cls._generate_nested_filter(nested=nested))
+            filters.extend(self._generate_nested_filter(nested=nested))
 
         if within:
-            filters.extend(cls._generate_in_filter(model=model, within=within))
+            filters.extend(self._generate_in_filter(model=model, within=within))
 
         if has_key:
-            filters.extend(cls._generate_has_key_filter(model=model, has_key=has_key))
+            filters.extend(self._generate_has_key_filter(model=model, has_key=has_key))
 
         return filters
 
-    @classmethod
-    def clean_query(cls, model, expand=[], include=[], sort_by=None, nested=None,
+    def clean_query(self, model, expand=None, include=None, sort_by=None, nested=None,
                     within=None, has_key=None, **kwargs):
-        filters = cls._generate_filters(model=model, nested=nested, within=within, has_key=has_key,
-                                        **kwargs)
-        query = cls._query_builder(model=model, filters=filters, include=include, expand=expand,
-                                   sort_by=sort_by)
+        if include is None:
+            include = []
+
+        if expand is None:
+            expand = []
+
+        filters = self._generate_filters(model=model, nested=nested, within=within, has_key=has_key,
+                                         **kwargs)
+        query = self._query_builder(model=model, filters=filters, include=include, expand=expand,
+                                    sort_by=sort_by)
         return query
 
-    @classmethod
-    def run_query(cls, query, **kwargs):
+    @staticmethod
+    def run_query(query, **kwargs):
         page = kwargs.get('page', None)
         per_page = kwargs.get('per_page', None)
 
@@ -212,45 +205,52 @@ class DB:
         Find = collections.namedtuple('Find', ['items', 'total'])
         return Find(items=items, total=total)
 
-    @classmethod
     # Methods
-    def init(cls, model, **kwargs):
+
+    @staticmethod
+    def init(model, **kwargs):
         return model(**kwargs)
 
-    @classmethod
-    def count(cls, model):
+    @staticmethod
+    def count(model):
         return db.session.query(model).count()
 
     # add an instance without saving it to the db
-    @classmethod
-    def add(cls, instance):
+
+    def add(self, instance):
         if not instance:
             raise MissingParamError(instance.__tablename__)
         if not Cleaner().is_mapped(instance):
             raise InvalidTypeError(instance.__tablename__, 'mapped')
 
-        if not cls._is_pending(instance):
+        if not self._is_pending(instance):
             db.session.add(instance)
         return instance
 
-    @classmethod
-    def commit(cls):
+    @staticmethod
+    def commit():
         db.session.commit()
 
-    @classmethod
-    def save(cls, instance):
-        cls.add(instance=instance)
-        cls.commit()
+    def save(self, instance):
+        self.add(instance=instance)
+        self.commit()
         return instance
 
-    @classmethod
     # TODO: Consider using dataclass instead of a named tuple
-    def find(cls, model, page=None, per_page=None, **kwargs):
-        query = cls.clean_query(model=model, **kwargs)
-        return cls.run_query(query=query, page=page, per_page=per_page)
+    def find(self, model, page=None, per_page=None, **kwargs):
+        query = self.clean_query(model=model, **kwargs)
+        return self.run_query(query=query, page=page, per_page=per_page)
 
-    @classmethod
-    def destroy(cls, instance):
+    @staticmethod
+    def delete(instance):
         db.session.delete(instance)
+        return True
+
+    def destroy(self, instance):
+        self.delete(instance=instance)
         db.session.commit()
         return True
+
+    @staticmethod
+    def rollback():
+        db.session.rollback()
