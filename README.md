@@ -1,4 +1,4 @@
-![Logo](https://techtapir.com/statics/img/tapir_white.png)
+![Logo](https://techtapir.com/statics/img/tech_tapir_white.png)
 # auth 
 AUTH Microservice
 
