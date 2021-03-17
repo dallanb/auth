@@ -1,6 +1,15 @@
+![Logo](https://techtapir.com/statics/img/tapir_white.png)
 # auth 
 AUTH Microservice
 
+## Description
+This service is responsible for handling authentication in the application
+
+### How to run
+```make deploy```
+
+### How to clean up
+```make down```
 
 ### API
 #### Documentation
