@@ -1,7 +1,11 @@
+<p align="center">
+  <img src="https://techtapir.com/statics/img/tech_tapir_white_small.png">
+</p>
+
 # auth 
 AUTH Microservice
 
-![Logo](https://techtapir.com/statics/img/tech_tapir_white_small.png)
+
 ## Description
 This service is responsible for handling authentication in the application
 
