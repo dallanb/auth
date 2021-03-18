@@ -1,4 +1,4 @@
-<img alt="Tech Tapir" src="https://techtapir.com/statics/img/tech_tapir_white_small.png" style="vertical-align:middle">
+<img alt="Tech Tapir" src="https://techtapir.com/statics/img/tech_tapir_white_small.png" style="display: block;margin: 0 auto;">
 
 # auth 
 AUTH Microservice
