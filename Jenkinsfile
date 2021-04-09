@@ -19,7 +19,9 @@ pipeline {
                         } catch (Exception e) {
                             echo 'This image does not exist'
                         }
-                        dockerImage = docker.build(dockerImageName, "-f build/Dockerfile.$BRANCH_NAME --cache-from $dockerImageName .")
+//                         sh "docker buildx create --name jenkinsbuilder"
+                        sh "docker buildx use jenkinsbuilder"
+                        sh "docker buildx build -f build/Dockerfile.$BRANCH_NAME -t $dockerImageName --cache-from $dockerImageName --platform linux/amd64 --load ."
                     }
                 }
             }
@@ -65,7 +67,10 @@ pipeline {
                 script {
                     if (dockerImage) {
                         docker.withRegistry( '', registryCredential ) {
-                            dockerImage.push()
+                            sh "docker buildx ls"
+                            sh "docker buildx create --name jenkinsbuilder"
+                            sh "docker buildx use jenkinsbuilder"
+                            sh "docker buildx build -f build/Dockerfile.$BRANCH_NAME -t $dockerImageName --cache-from $dockerImageName --platform linux/amd64,linux/arm64 --push ."
                         }
                     }
                 }
@@ -81,23 +86,23 @@ pipeline {
                 }
             }
         }
-        stage('Recreate') {
-            steps {
-                slackSend (color: '#0000FF', message: "STARTED: Recreating Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' ")
-                script {
-                    if (dockerImage) {
-                        httpRequest url: 'http://192.168.0.100:10001/hooks/redeploy', contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: """
-                            {
-                                "project": {
-                                    "name": "$container",
-                                    "env": "$BRANCH_NAME"
-                                }
-                            }
-                        """
-                    }
-                }
-            }
-        }
+//         stage('Recreate') {
+//             steps {
+//                 slackSend (color: '#0000FF', message: "STARTED: Recreating Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' ")
+//                 script {
+//                     if (dockerImage) {
+//                         httpRequest url: 'http://192.168.0.100:10001/hooks/redeploy', contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: """
+//                             {
+//                                 "project": {
+//                                     "name": "$container",
+//                                     "env": "$BRANCH_NAME"
+//                                 }
+//                             }
+//                         """
+//                     }
+//                 }
+//             }
+//         }
     }
     post {
         success {
