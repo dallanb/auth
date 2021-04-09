@@ -12,7 +12,8 @@ pipeline {
                 slackSend (color: '#0000FF', message: "STARTED: Building Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' ")
                 script {
                     dockerImageName = registry + ":$BRANCH_NAME"
-                    dockerImage = ''
+//                     dockerImage = ''
+                    dockerImage = true
                     if (env.BRANCH_NAME == 'qaw') {
                         try {
                             docker.image(dockerImageName).pull()
