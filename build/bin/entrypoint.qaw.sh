@@ -21,5 +21,6 @@ fi
 flask db migrate --directory=migrations
 flask db upgrade --directory=migrations
 
+pip install -e .
 
 gunicorn --bind 0.0.0.0:5000 manage:app
