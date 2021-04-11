@@ -12,6 +12,7 @@ class Config(object):
     ACCESS_EXP = int(os.getenv("ACCESS_EXP", '300'))
     REFRESH_EXP = int(os.getenv("REFRESH_EXP", '3600'))
     KONG_URL = os.getenv("KONG_URL")
+    KONG_API_KEY = os.getenv("KONG_API_KEY", "")
     MAILER_URL = os.getenv("MAILER_URL")
     KAFKA_URL = os.getenv("KAFKA_URL")
     CLIENT_URL = os.getenv("CLIENT_URL")
