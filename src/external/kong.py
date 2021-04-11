@@ -12,7 +12,7 @@ class Kong(Base):
     def url(self, endpoint):
         full_url = f'{self.base_url}/{endpoint}'
         if self.api_key:
-            full_url += f'apikey={self.api_key}'
+            full_url += f'?apikey={self.api_key}'
         return full_url
 
     # create a Kong consumer
