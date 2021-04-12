@@ -44,5 +44,8 @@ RUN mkdir logs
 # copy manage.py
 COPY manage.py .
 
+# setup
+COPY setup.py .
+
 ## run entrypoint.sh
 ENTRYPOINT ["sh", "./build/bin/entrypoint.sh"]
