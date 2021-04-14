@@ -17,6 +17,7 @@ class Config(object):
     KAFKA_URL = os.getenv("KAFKA_URL")
     CLIENT_URL = os.getenv("CLIENT_URL")
     KAFKA_TOPICS = os.getenv("KAFKA_TOPICS").split(",")
+    KAFKA_GROUP_ID = os.getenv("KAFKA_GROUP_ID")
     REDIS_CONFIG = {
         'CACHE_TYPE': 'redis',
         'CACHE_REDIS_HOST': os.getenv("CACHE_HOST"),
