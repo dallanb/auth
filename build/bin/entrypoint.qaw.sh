@@ -18,7 +18,7 @@ if [ ! -d "migrations/versions" ]; then
   flask db init --directory=migrations
   sed -i '/import sqlalchemy as sa/a import sqlalchemy_utils' migrations/script.py.mako
   flask db migrate --directory=migrations
-  sed -i 's/length=1137/max_length=1137/' migrations/versions/*.py
+  sed -i 's/PasswordType(length=1137)/PasswordType(max_length=1137)/' migrations/versions/*.py
   flask db upgrade --directory=migrations
   manage init
   manage load
