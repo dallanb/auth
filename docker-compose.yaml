@@ -6,7 +6,7 @@ services:
     image: adminer:latest
     restart: always
     ports:
-      - 8080:8080
+      - 8070:8080
     networks:
       - app-net
   auth:
@@ -16,7 +16,7 @@ services:
       dockerfile: ./build/Dockerfile
     restart: on-failure
     volumes:
-      - ./migrations:/home/app/migrations
+      - ./migrationz:/home/app/migrations
       - ./bin:/home/app/bin
       - ./tests:/home/app/tests
       - ./src:/home/app/src

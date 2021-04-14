@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . ~/.bashrc
+pip install -e .
 
 if [ "$DATABASE" = "auth" ]; then
   echo "Waiting for auth..."
@@ -16,11 +17,15 @@ if [ ! -d "migrations/versions" ]; then
   echo "Directory migrations/versions does not exist."
   flask db init --directory=migrations
   sed -i '/import sqlalchemy as sa/a import sqlalchemy_utils' migrations/script.py.mako
+  flask db migrate --directory=migrations
+  sed -i 's/length=1137/max_length=1137/' migrations/versions/*.py
+  flask db upgrade --directory=migrations
+  manage init
+  manage load
+else
+  flask db migrate --directory=migrations
+  flask db upgrade --directory=migrations
 fi
 
-flask db migrate --directory=migrations
-flask db upgrade --directory=migrations
-
-pip install -e .
 
 gunicorn --bind 0.0.0.0:5000 manage:app
