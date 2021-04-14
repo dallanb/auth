@@ -16,7 +16,6 @@ services:
       dockerfile: ./build/Dockerfile
     restart: on-failure
     volumes:
-      - ./migrationz:/home/app/migrations
       - ./bin:/home/app/bin
       - ./tests:/home/app/tests
       - ./src:/home/app/src
