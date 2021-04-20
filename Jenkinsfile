@@ -89,23 +89,24 @@ pipeline {
                 }
             }
         }
-//         stage('Recreate') {
-//             steps {
-//                 slackSend (color: '#0000FF', message: "STARTED: Recreating Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' ")
-//                 script {
-//                     if (dockerImage) {
-//                         httpRequest url: 'http://192.168.0.100:10001/hooks/redeploy', contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: """
-//                             {
-//                                 "project": {
-//                                     "name": "$container",
-//                                     "env": "$BRANCH_NAME"
-//                                 }
-//                             }
-//                         """
-//                     }
-//                 }
-//             }
-//         }
+        stage('Recreate') {
+            when {
+                expression { env.BRANCH_NAME == 'prod'}
+            }
+            steps {
+                slackSend (color: '#0000FF', message: "STARTED: Recreating Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' ")
+                script {
+                    httpRequest url: 'http://10.0.0.200:10001/hooks/redeploy', contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: """
+                        {
+                            "project": {
+                                "name": "$container",
+                                "env": "$BRANCH_NAME"
+                            }
+                        }
+                    """
+                }
+            }
+        }
     }
     post {
         success {
