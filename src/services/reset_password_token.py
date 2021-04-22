@@ -4,7 +4,7 @@ from http import HTTPStatus
 
 from .base import Base
 from ..common.mail import Mail
-from ..decorators import reset_password_token_notification
+from ..decorators.notifications import reset_password_token_notification
 from ..models import ResetPasswordToken as ResetPasswordTokenModel
 
 

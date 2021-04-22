@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 from .base import Base
 from ..common.mail import Mail
-from ..decorators import user_notification
+from ..decorators.notifications import user_notification
 from ..models import User as UserModel
 
 
