@@ -1,7 +1,8 @@
 from flask_restful import marshal_with
+
+from . import Base
 from ...common import MessageResponse
 from ...services import User
-from . import Base
 
 
 class Ping(Base):

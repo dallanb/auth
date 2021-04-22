@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 from .base import Base
 from ..common.mail import Mail
-from ..decorators import invite_token_notification
+from ..decorators.notifications import invite_token_notification
 from ..models import InviteToken as InviteTokenModel
 
 
