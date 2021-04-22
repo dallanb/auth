@@ -20,6 +20,7 @@ services:
       - ./tests:/home/app/tests
       - ./src:/home/app/src
       - ./statics:/home/app/statics
+      - ./logs:/home/app/logs
       - ./manage.py:/home/app/manage.py
       - ./setup.py:/home/app/setup.py
     env_file:
@@ -29,6 +30,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    ports:
+      - 5000:5000
     depends_on:
       - auth_db
       - auth_kafka

@@ -1,6 +1,6 @@
 import logging.config
 
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
@@ -65,3 +65,18 @@ consumer = Consumer(topics=app.config['KAFKA_TOPICS'], event_listener=new_event_
 @app.before_first_request
 def func():
     consumer.start()
+
+
+@app.before_request
+def log_request_info():
+    if request.path != '/ping':
+        logging.info(f'request: {request.remote_addr} - - {request.method} {request.url}')
+
+
+@app.after_request
+def log_response_info(response):
+    if request.path != '/ping':
+        logging.info(
+            f'response: {response.status},  {response.data.decode("utf-8")}'
+        )
+    return response
