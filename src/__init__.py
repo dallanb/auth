@@ -1,4 +1,5 @@
 import logging.config
+import traceback
 
 from flask import Flask, request
 from flask_cors import CORS
@@ -44,7 +45,7 @@ from .common import (
 @app.errorhandler(Exception)
 @marshal_with(ErrorResponse.marshallable())
 def handle_error(error):
-    logging.error(error)
+    logging.error(traceback.format_exc())
     return ErrorResponse(), 500
 
 
