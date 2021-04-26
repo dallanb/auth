@@ -90,6 +90,9 @@ pipeline {
             }
         }
         stage('Recreate') {
+            when {
+                expression { env.BRANCH_NAME == 'qaw' || env.BRANCH_NAME == 'prod'}
+            }
             steps {
                 slackSend (color: '#0000FF', message: "STARTED: Recreating Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' ")
                 script {
