@@ -3,4 +3,3 @@ logs
 env/.env.prod
 .idea
 *.sql
-logs
