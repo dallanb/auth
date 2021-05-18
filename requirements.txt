@@ -2,7 +2,7 @@ Babel==2.8.0
 coloredlogs==14.0
 Flask==1.1.1
 Flask-Caching==1.9.0
-flask_CORS==3.0.7
+flask_CORS==3.0.9
 flask-marshmallow==0.12.0
 Flask-Migrate==2.5.3
 Flask_RESTful==0.3.7
