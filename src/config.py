@@ -8,6 +8,12 @@ class Config(object):
     PROPAGATE_EXCEPTIONS = os.getenv("PROPAGATE_EXCEPTIONS")
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite://")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": os.getenv("POOL_PRE_PING", True),
+        "pool_size": os.getenv("POOL_SIZE", 5),
+        "pool_recycle": os.getenv("POOL_RECYCLE", 1800),
+        "max_overflow": os.getenv("MAX_OVERFLOW", 20),
+    }
     SECRET_KEY = os.getenv("SECRET_KEY")
     ACCESS_EXP = int(os.getenv("ACCESS_EXP", '300'))
     REFRESH_EXP = int(os.getenv("REFRESH_EXP", '3600'))
